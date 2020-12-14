@@ -48,6 +48,7 @@ else:
       except NoSuchElementException:
        print("Could not find the download link\nProceeding to next..")
        #add new tab here
+       #test change
        continue 
       print("Download successfully started for Link{}: {}\nProceeding to next link..... ".format(count,line.strip()))    
 file1.close()      
