@@ -5,8 +5,8 @@ The links should be in a text file. The **file can contain links in any way,** b
 The script can skip invalid or empty lines to move to the next line until EOF is reached and then it will auto exit.\
 EOF is calculated using 2 empty lines, the script auto exits if it encounters 2 empty lines in a row.\
 If not a Zippyshare link then all the links will be opened in new tabs to download the file manually.\
-Opening every link in the file can also be done using [openlinks.sh](./openlinks.sh) bash script.\
-### If you only want to open links,it can be done using this simple[bash](./openlinks.sh) script also.
+Opening every link in the file can also be done using [openlinks.sh](./openlinks.sh) bash script.
+### If you only want to open links, it can be done using this simple [bash](./openlinks.sh) script also.
 
 
 ## To run clone this repositary and create a virtual environment and install dependencies from [requirements.txt](./requirements.txt) file.
@@ -28,7 +28,7 @@ py linkdl.py abc.txt  #if in the same folder otherwise add full path
 py linkdl.py D:\College\Projects\zippyshare-dl\abc.txt
 py linkdl.py #if no argument is passed, the program will ask for the path before opening the browser
 ```
-It uses selenium package to open links in a browser and find the download button using xpath on Zippyshare.\
+It uses Selenium package to open links in a browser and find the download button using xpath on Zippyshare.\
 It also works on other sites just change the location in the line where download button is situated.\
 You can find any element by id,tag,class,path etc.\
 For more info visit official [Selenium documentation](https://selenium-python.readthedocs.io/locating-elements.html)
@@ -37,10 +37,10 @@ For more info visit official [Selenium documentation](https://selenium-python.re
 element = browser.find_element_by_xpath("//*[@id='dlbutton']")
 element.click()
 ```
-If it does not find the download link then NoSuchElementException will be thrown it will open all the links in the browser in new tabs(Works on any site)
+If it does not find the download link then NoSuchElementException will be thrown it will open all the links in the browser in new chrome tabs(**Works on any site**)
 
 
-Using this
+Using this:
 ```python
 browser.execute_script("window.open('');")
 browser.switch_to.window(browser.window_handles[count+2])
