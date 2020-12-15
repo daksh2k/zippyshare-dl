@@ -30,16 +30,20 @@ else:
      	break 
      	sys.exit()
      elif not line.strip() or line.strip()[0:4] !="http":
-     	print(line.strip()[0:4])
-     	print("Empty or Invalid line encountered\nMoving to next line....\n")
+     	print(line.strip()+"is Empty or Invalid\nMoving to next line....\n")
      	continue	
      else:
       try:
+       #sleep(1)	
        browser.get(line)
        count += 1 
        print("Link {}: {} successfully opened\nProceeding to download file.... ".format(count,line.strip())) 
       except WebDriverException:
       	print("Unable to open link\n Moving to next...")
+      	#sleep(2)
+      	browser.execute_script("window.open('');")
+      	sleep(1)
+      	browser.switch_to.window(browser.window_handles[count+2])
       	continue
       #element = browser.find_element_by_id("dlbutton")
       try:
@@ -47,8 +51,9 @@ else:
        element.click()
       except NoSuchElementException:
        print("Could not find the download link\nProceeding to next..")
-       #add new tab here
-       #test change
+       browser.execute_script("window.open('');")
+       sleep(1)
+       browser.switch_to.window(browser.window_handles[count+2])
        continue 
       print("Download successfully started for Link{}: {}\nProceeding to next link..... ".format(count,line.strip()))    
 file1.close()      
