@@ -4,7 +4,8 @@ Download [IDM](https://www.internetdownloadmanager.com/download.html) from here 
 The links should be in a text file. The **file can contain links in any way,** but can contain only one link per line.\
 The script can skip invalid or empty lines to move to the next line until EOF is reached and then it will auto exit.\
 EOF is calculated using 2 empty lines, the script auto exits if it encounters 2 empty lines in a row.\
-If not a Zippyshare link then all the links will be opened in new tabs to download the file manually.
+If not a Zippyshare link then all the links will be opened in new tabs to download the file manually.\
+## If you only want to open links then Run this [bash](./openlinks.sh) script only.
 
 
 ## To run create a virtual environment and install dependencies from [requirements.txt](./requirements.txt).
@@ -25,7 +26,6 @@ py linkdl.py abc.txt  #if in the same folder otherwise add full path
 py linkdl.py D:\College\Projects\zippyshare-dl\abc.txt
 py linkdl.py #if no argument is passed, the program will ask for the path before opening the browser
 ```
-
 It uses selenium package to open links in a browser and find the download button using xpath on Zippyshare.\
 It also works on other sites just change the location in the line where download button is situated.\
 You can find any element by id,tag,class,path etc.\
