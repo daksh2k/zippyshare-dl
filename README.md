@@ -2,11 +2,12 @@
 Python script to automatically download from Zippyshare using [Selenium package](https://www.selenium.dev/) and [Internet Download Manager](https://www.internetdownloadmanager.com/).\
 Download [IDM](https://www.internetdownloadmanager.com/download.html) from here for downloading multiple files hassle free.\
 The links should be in a text file. The **file can contain links in any way,** but can contain only one link per line.\
-The script can skip invalid or empty lines to move to the next line until EOF is reached.\
+The script can skip invalid or empty lines to move to the next line until EOF is reached and then it will auto exit.\
+EOF is calculated using 2 empty lines, the script auto exits if it counters 2 empty lines in a row.\
 If not a Zippyshare link then all the links will be opened in new tabs to download the file manually.
 
 
-### To run create a virtual environment and install dependencies from [requirements.txt](./requirements.txt).
+## To run create a virtual environment and install dependencies from [requirements.txt](./requirements.txt).
 ```
 pip install venv
 py -m venv "Your name of the environment"
@@ -17,7 +18,7 @@ pip install requirements.txt
 This also installs 2 extensions adblock and idm to work without any hassle.
 
 
-### Then run the [linkdl.py](./linkdl.py) file and enter the path to the txt file containing the links in the console argument.
+## Then run the [linkdl.py](./linkdl.py) file and enter the path to the txt file containing the links in the console argument.
 For example :
 ```python
 py linkdl.py abc.txt  #if in the same folder otherwise add full path
