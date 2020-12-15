@@ -2,31 +2,29 @@ import os
 import sys
 from time import sleep
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys  
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options 
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import WebDriverException
-options = webdriver.ChromeOptions()
-options.add_argument('--ignore-certificate-errors')
-options.add_argument('--ignore-ssl-errors')
-options.add_extension('./ngpampappnmepgilojfohadhhmbhlaek.crx') 
-options.add_extension('./gighmmpiobklfepjocnamgkkbiglidom.crx') 
-browser = webdriver.Chrome('./chromedriver',options=options)
+from selenium.common.exceptions import *
 if len(sys.argv)<2:
  fl=input("Enter the name of the file or path:")
 else: 
  fl=sys.argv[1]
-print("File to be opened: "+fl)
 if not os.path.isfile(fl):
-    print('File path "{}" does not exist.\n\nExiting...'.format(fl))
+    print('\nFile path "{}" does not exist.\nExiting...\n\n'.format(fl))
     sys.exit()
 else:
+ print("File to be opened: "+fl)		
+ options = webdriver.ChromeOptions()
+ options.add_argument('--ignore-certificate-errors')
+ options.add_argument('--ignore-ssl-errors')
+ options.add_extension('./ngpampappnmepgilojfohadhhmbhlaek.crx') 
+ options.add_extension('./gighmmpiobklfepjocnamgkkbiglidom.crx') 
+ print("\n\nAdding Extensions to browser..\nThis process will take a few seconds...\n")
+ browser = webdriver.Chrome('./chromedriver',options=options)
+ print('Browser successfully opened\nOpening file "'+fl+ '" to read links...\n\n')
  file1 = open(fl, 'r')
  count = 0 
  flag  = 0
  dlcount = 0
- x=[]
  line= file1.readline()
  x=[line]
  print("File successfully opened\nProceeding to opening first Link....\n")
@@ -48,10 +46,11 @@ else:
        browser.get(line)
        count += 1 
        sleep(1)
-       print('Link {}: "{}" successfully opened\nProceeding to download file.... '.format(count,line.strip())) 
+       print('Link {}: "{}" found on Line {}.\nLink successfully opened.\nProceeding to download file.... '.format(count,line.strip(),flag)) 
       except WebDriverException:
           print("Unable to open link\n Moving to next...")
-          sleep(3)  
+          sleep(3)
+          browser.refresh()  
           browser.execute_script("window.open('');")
           sleep(1)
           browser.switch_to.window(browser.window_handles[count+2])
