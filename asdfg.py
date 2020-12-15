@@ -7,6 +7,10 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options 
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions, expected_conditions
+from selenium.common.exceptions import *
 options = webdriver.ChromeOptions()
 options.add_argument('--ignore-certificate-errors')
 options.add_argument('--ignore-ssl-errors')
@@ -51,6 +55,19 @@ else:
        print('Link {}: "{}" successfully opened\nProceeding to download file.... '.format(count,line.strip())) 
       except WebDriverException:
           print("Unable to open link\n Moving to next...")
+          element = None
+          i = 6
+          while element is None:
+           try:
+            wait = WebDriverWait(browser, 5, poll_frequency=1)
+            element = wait.until(expected_conditions.visibility_of_element_located("container"))
+            continue
+           except:
+            browser.refresh()
+            i = i - 1
+            print(i)
+            if i < 0:
+             raise Exception('Page not loaded')
           sleep(3)  
           browser.execute_script("window.open('');")
           sleep(1)
@@ -61,10 +78,10 @@ else:
        element.click()
        dlcount+=1
       except NoSuchElementException:
-       print("Could not find the download link\nProceeding to next..\n\n")
+       print("Could not find the download link\nProceeding to next..")
        browser.execute_script("window.open('');")
        sleep(1)
        browser.switch_to.window(browser.window_handles[count+2])
        continue 
       print("Download successfully started for Link{}: {}\nProceeding to next link.....\n ".format(count,line.strip()))    
-file1.close()   
+file1.close()               

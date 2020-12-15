@@ -1,20 +1,24 @@
-# Zippyshare downloader and link opener
-## Reads links from a text file
-Python script to automatically download from Zippyshare using Selenium package[https://www.selenium.dev/] and [Idm](https://www.internetdownloadmanager.com/).\
+# Zippyshare downloader and Links opener
+Python script to automatically download from Zippyshare using [Selenium package](https://www.selenium.dev/) and [Idm](https://www.internetdownloadmanager.com/).\
 It uses selenium package to open links in a browser and find the download button uing xpath on Zippyshare.\
 It also works on other sites just change the location in the line where download button is situated.\
 You can find any element by id,tag,class,path etc.\
 For more info visit official [Selenium documentation](https://selenium-python.readthedocs.io/locating-elements.html)
+
 ```python
 element = browser.find_element_by_xpath("//*[@id='dlbutton']")
 element.click()
 ```
 If it does not find the download link then NoSuchElementException will be thrown it will open all the links in the browser in new tabs(Works on any site)\
+
+
 Using this
 ```python
 browser.execute_script("window.open('');")
 browser.switch_to.window(browser.window_handles[count+2])
 ```
+
+
 To run create a virtual environment and install dependencies from requirements.txt.
 ```
 pip install venv
