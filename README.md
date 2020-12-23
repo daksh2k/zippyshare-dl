@@ -12,7 +12,7 @@ Opening every link in the file can also be done using [openlinks.sh](./openlinks
 ## To run clone this repositary and create a virtual environment and install dependencies from [requirements.txt](./requirements.txt) file.
 ```python
 git clone https://github.com/daksh2k/zippyshare-dl.git
-pip install venv
+pip install virtualenv
 py -m venv "Your name of the environment" #Add any name without inverted commas
 py -m venv env
 pip install requirements.txt
