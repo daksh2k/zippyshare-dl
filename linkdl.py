@@ -1,9 +1,13 @@
 import os
 import sys
 from time import sleep
+from os import system
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options 
 from selenium.common.exceptions import *
+print("\n\n\n\n")
+system('cls')
 if len(sys.argv)<2:
  fl=input("Enter the name of the file or path:")
 else: 
@@ -11,22 +15,27 @@ else:
 if not os.path.isfile(fl):
     print('\nFile path "{}" does not exist.\nExiting...\n\n'.format(fl))
     sys.exit()
-else:
- print("File to be opened: "+fl)		
+else:	
+ start_time = datetime.now()
+ dt_string = start_time.strftime("%d/%m/%Y %H:%M:%S")
+ print("\n\nProcess started on Date and Time =", dt_string)
+ print("\n\nFile to be opened: "+fl)		
  options = webdriver.ChromeOptions()
  options.add_argument('--ignore-certificate-errors')
  options.add_argument('--ignore-ssl-errors')
- options.add_extension('./ngpampappnmepgilojfohadhhmbhlaek.crx') 
- options.add_extension('./gighmmpiobklfepjocnamgkkbiglidom.crx') 
+ options.add_extension('./Selenium/Extensions/ngpampappnmepgilojfohadhhmbhlaek.crx') 
+ options.add_extension('./Selenium/Extensions/gighmmpiobklfepjocnamgkkbiglidom.crx') 
+ # options.add_experimental_option("debuggerAddress", "localhost:3000")
  print("\n\nAdding Extensions to browser..\nThis process will take a few seconds...\n")
- browser = webdriver.Chrome('./chromedriver',options=options)
- print('Browser successfully opened\nOpening file "'+fl+ '" to read links...\n\n')
+ browser = webdriver.Chrome('./Selenium/chromedriver',options=options)
+ print('\nBrowser successfully opened\nOpening file "'+fl+ '" to read links...\n\n')
  file1 = open(fl, 'r')
  count = 0 
  flag  = 0
  dlcount = 0
  line= file1.readline()
  x=[line]
+
  print("File successfully opened\nProceeding to opening first Link....\n")
  while True: 
      flag+=1
@@ -35,7 +44,11 @@ else:
      line=x[flag-1]
      if not line.strip() and not line2.strip():
          file1.close()
+         end_time = datetime.now()
+         dt_string = end_time.strftime("%d/%m/%Y %H:%M:%S")
          print("\n\nReached end of file\n\nTotal Lines Parsed: {}\nTotal Links found: {}\nTotal downloads started: {}\n\nExiting........\n\n".format(flag,count,dlcount))
+         print("Process ended on Date and Time =", dt_string)
+         print("\n\n\n\n")
          break 
          sys.exit()
      elif not line.strip() or line.strip()[0:4] !="http":
