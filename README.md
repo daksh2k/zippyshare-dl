@@ -4,6 +4,8 @@ Download [IDM](https://www.internetdownloadmanager.com/download.html) from here 
 The links should be in a text file. The **file can contain links in any way,** but can contain only one link per line.\
 The script can skip invalid or empty lines to move to the next line until EOF is reached and then it will auto exit.\
 EOF is calculated using 2 empty lines, the script auto exits if it encounters 2 empty lines in a row.\
+
+
 If not a Zippyshare link then all the links will be opened in new tabs to download the file manually.\
 Opening every link in the file can also be done using [openlinks.sh](./openlinks.sh) bash script.
 ### If you only want to open links, it can be done using this simple [bash](./openlinks.sh) script also.
@@ -15,11 +17,13 @@ git clone https://github.com/daksh2k/zippyshare-dl.git
 pip install virtualenv
 py -m venv "Your name of the environment" #Add any name without inverted commas
 py -m venv env
-pip install requirements.txt
+pip install -r requirements.txt
 ```
+Also run
 
-This also installs 2 extensions [AdBlock](https://chrome.google.com/webstore/detail/adblock-%E2%80%94-best-ad-blocker/gighmmpiobklfepjocnamgkkbiglidom) and [IDM Integration Module](https://chrome.google.com/webstore/detail/idm-integration-module/ngpampappnmepgilojfohadhhmbhlaek) contained in the 2 crx files to download files seamlessly.
-
+```
+C:\Program Files\Google\Chrome\Application\chrome.exe -remote-debugging-port=4000 --user-data-dir="D:\College\Projects\zippyshare-dl\Selenium\Chrome_Test_Profile" #add your path here
+```
 
 ## Then run the [linkdl.py](./linkdl.py) file and enter the path to the text file containing the links in the console argument.
 For example :
