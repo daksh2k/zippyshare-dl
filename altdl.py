@@ -17,11 +17,12 @@ else:
 if not os.path.isfile(fl):
     print('\nFile path "{}" does not exist.\nExiting...\n\n'.format(fl))
     sys.exit()
-else: 
+else:
+ exec_time = datetime.now().strftime("%d_%m__%H_%M_%S") 
  start_time  = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
  exec_start_time=time()
  print("\n\nProcess started on Date and Time =", start_time)
- print(f'\n\nFile to be opened: "{os.path.basename(fl)}"\nLocated at: "{os.path.realpath(fl)}"')       
+ print(f'\n\nFile to be opened: "{os.path.basename(fl)}"\nLocated at: "{os.path.realpath(fl)}"')    
  options = webdriver.ChromeOptions()
  options.add_argument('--ignore-certificate-errors')
  options.add_argument('--ignore-ssl-errors')
@@ -52,17 +53,13 @@ else:
  x=[line]
  print("File successfully opened\nProceeding to opening first Link....\n")
  while True:
-     # if dlcount==0:
-     #  print("Starting...\n\n")
-     # elif dlcount%10==0:
-     # print("Started {} downloads pausing for 5 mins...\n\n".format(dlcount))	
-     #  sleep(300)  
      flag+=1
      line2= file1.readline()
      x.append(line2)
      line=x[flag-1]
      if not line.strip() and not line2.strip():
          file1.close()
+         file2.close()
          if fl.lower().endswith('.dlc'):
           remove(temp_file)
          end_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -70,10 +67,13 @@ else:
          duration= exec_end_time- exec_start_time
          hours, rest = divmod(duration,3600)
          minutes, seconds = divmod(rest, 60)
-         print("\n\nReached end of file\n\nTotal Lines Parsed: {}\nTotal Links found: {}\nTotal downloads started: {}\nTotal time taken = {} Hours {} Minutes {} Seconds\n\nExiting........\n\n".format(flag,count,dlcount,str(hours).split('.')[0],str(minutes).split('.')[0],str(seconds).split('.')[0]))
+         print(f'\n\nDownload Links saved to file "{dl_Links}"\nLocated at "{os.path.realpath(dl_Links)}"')
+         print("\n\n\nTotal Lines Parsed: {}\nTotal Links found: {}\nTotal downloads started: {}\nTotal time taken = {} Hours {} Minutes {} Seconds\n\nExiting........\n\n".format(flag,count,dlcount,str(hours).split('.')[0],str(minutes).split('.')[0],str(seconds).split('.')[0]))
          print("Process ended on Date and Time =", end_time)
          print("\n\n\n\n")
-         break 
+         os.system(f"subl {dl_Links}")
+         os.system('"C:/Program Files (x86)/Internet Download Manager/IDMan.exe"')
+         # break 
          sys.exit()
      elif not line.strip() or line.strip()[0:4] !="http":
          print('No Link found on Line {}:"'.format(flag)+line.strip()+'" it is either Empty or Invalid\nMoving to next line....\n')
@@ -94,11 +94,13 @@ else:
           continue
       try:
        if(line.find('zippy')!=-1):
-        element = browser.find_element_by_xpath("//*[@id='dlbutton']")
-        element.click()
-        # browser.execute_script("window.open('');")
-        # sleep(0.5)
-        # browser.switch_to.window(browser.window_handles[count])
+        element = browser.find_element_by_xpath("//*[@id='dlbutton']").get_attribute("href");
+        size= len(fl) 
+        mod_string = fl[:size - 4] 
+        orig_name=os.path.basename(mod_string)
+        dl_Links="{}_dl_links.txt".format(orig_name)
+        file2 = open(dl_Links, "a") 
+        file2.write(element+"\n")
         dlcount+=1  
        elif(line.find('sharer')!=-1): 
         element = browser.find_element_by_xpath("//*[@id='btndl']")
