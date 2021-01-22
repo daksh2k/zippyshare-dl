@@ -19,8 +19,7 @@ py -m venv "Your name of the environment" #Add any name without inverted commas
 py -m venv env
 pip install -r requirements.txt
 ```
-Also run
-
+Also run the following command and add any path here, or simply run this [Powershell Script](./Execute_linkdldl.ps1) and change directories accordingly in the script.
 ```
 C:\Program Files\Google\Chrome\Application\chrome.exe -remote-debugging-port=4000 --user-data-dir="D:\College\Projects\zippyshare-dl\Selenium\Chrome_Test_Profile" #add your path here
 ```
