@@ -29,8 +29,7 @@ C:\Program Files\Google\Chrome\Application\chrome.exe -remote-debugging-port=400
 For example :
 ```python
 py linkdl.py abc.txt  #if in the same folder otherwise add full path
-py linkdl.py D:\College\Projects\zippyshare-dl\abc.txt
-py linkdl.py #if no argument is passed, the program will ask for the path before opening the browser
+py linkdl.py #if no argument is passed, the program will ask for the path
 ```
 It uses Selenium package to open links in a browser and find the download button using xpath on Zippyshare.\
 It also works on other sites just change the location in the line where download button is situated.\
