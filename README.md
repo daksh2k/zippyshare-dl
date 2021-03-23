@@ -15,9 +15,9 @@ py -m venv env
 pip install -r requirements.txt
 ```
 
-## Then run the [linkdl.py](./linkdl.py) file and enter the path to the text file containing the links in the console argument.
-## If you just want Download Links then run [testaltdl.py](./testaltdl.py), it will save all the links in a txt file in the current directory.(Also supports multiple files)
-### Then you can add that file to any downloader.
+### Then run the [linkdl.py](./linkdl.py) file and enter the path to the text file containing the links in the console argument.
+### If you just want Download Links then run [testaltdl.py](./testaltdl.py), it will save all the links in a txt file in the current directory.(Also supports multiple files)
+#### Then you can add that file to any downloader.
 
 For example :
 ```python
@@ -34,12 +34,4 @@ element = browser.find_element_by_xpath("//*[@id='dlbutton']")
 element.click()
 ```
 If it does not find the download link then NoSuchElementException will be thrown it will open all the links in the browser in new chrome tabs(**Works on any site**)
-
-
-Using this:
-```python
-browser.execute_script("window.open('');")
-browser.switch_to.window(browser.window_handles[count+2])
-```
-
 
