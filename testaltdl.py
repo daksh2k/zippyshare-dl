@@ -15,8 +15,11 @@ tab_count = 0
 lines_parsed  = 0
 dlcount = 0
 flcount = 0
+flcount_parsed = 0
 total_lines_parsed = 0
 filecrypt_domain = "https://www.filecrypt.cc/"
+start_time  = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+exec_start_time=time()
 
 def parse_filecrypt():  
   for index,item in enumerate(file_list):
@@ -27,16 +30,26 @@ def parse_filecrypt():
        dlc_id = browser.find_element_by_class_name("dlcdownload").get_attribute("onclick")
        if dlc_id is None:
              raise ValueError('%s is not supported. Try opening the link manually.' % item)
-             continue
+             if(index+1==len(file_list)):
+              display_summary()
+              sys.exit()
+             else:
+              print("Moving to next item...")
+              continue
        dlc_name = browser.find_element_by_tag_name("h2").get_attribute("textContent") 
        print("DLC name: ",dlc_name)
        link_to_download = filecrypt_domain + "DLC/" + dlc_id.split("'")[1]+ ".dlc"
        r = requests.get(link_to_download)
        open("Links/"+dlc_name+".dlc", 'wb').write(r.content)
-       file_list[index] = dlc_name
+       file_list[index] = "Links/"+dlc_name+".dlc"
       except Exception as e:
         print('[*] {}'.format(e))
-        continue 
+        if(index+1==len(file_list)):
+            display_summary()
+            sys.exit()
+        else:
+        	print("Moving to next item...")
+        	continue 
 
 def display_summary():
   end_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -44,14 +57,12 @@ def display_summary():
   duration= exec_end_time- exec_start_time
   hours, rest = divmod(duration,3600)
   minutes, seconds = divmod(rest, 60)
-  print(f"\n\nTotal Links found: {link_count}\nTotal downloads started: {dlcount}\nTotal files parsed for Links: {flcount}\nTotal Lines Parsed: {total_lines_parsed}")
+  print(f"\n\nTotal Links found: {link_count}\nTotal downloads started: {dlcount}\nTotal files parsed for Links: {flcount_parsed}/{flcount}\nTotal Lines Parsed: {total_lines_parsed}")
   print(f"Total time taken: {str(hours).split('.')[0]} Hours {str(minutes).split('.')[0]} Minutes {str(seconds).split('.')[0]} Seconds\n\nExiting........\n\n")
   print("Process ended on Date and Time =", end_time)
   print("\n\n\n\n")
 
 system('cls')
-start_time  = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-exec_start_time=time()
 print("Process started on Date and Time =", start_time)
 options = webdriver.ChromeOptions()
 options.add_argument('--ignore-certificate-errors')
@@ -87,6 +98,7 @@ for fl in file_list:
     print("\n######################################################################################################")
     continue 
   else:
+   flcount_parsed+=1
    # chrome_run = os.system('"chrome.exe -remote-debugging-port=4000 --user-data-dir="D:/College/Projects/zippyshare-dl/Selenium/Chrome_Test_Profile"') 
    # print(f"this is chrom run {chrome_run}")
    # exec_time = datetime.now().strftime("%d_%m__%H_%M_%S") 
