@@ -1,9 +1,0 @@
-env
-Logs
-Selenium/Chrome_Test_Profile
-Links
-.swp
-debug.log
-geckodriver.log
-openlinks.sh
-bashscript.ps1

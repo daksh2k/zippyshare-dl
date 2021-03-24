@@ -1,5 +1,6 @@
 import os
 import sys
+import requests
 from time import sleep,time
 from os import system, remove
 from dcryptit import read_dlc
@@ -7,14 +8,48 @@ from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options 
 from selenium.common.exceptions import *
+
+# Summary vars initialization
 link_count = 0 
 tab_count = 0
 lines_parsed  = 0
 dlcount = 0
 flcount = 0
 total_lines_parsed = 0
+filecrypt_domain = "https://www.filecrypt.cc/"
+
+def parse_filecrypt():  
+  for index,item in enumerate(file_list):
+    if(item.find('filecrypt')!=-1):
+      print(f"Found filecrypt Link: {item}\nGetting dlc from filecrypt..")
+      try:
+       browser.get(item)
+       dlc_id = browser.find_element_by_class_name("dlcdownload").get_attribute("onclick")
+       if dlc_id is None:
+             raise ValueError('%s is not supported. Try opening the link manually.' % item)
+             continue
+       dlc_name = browser.find_element_by_tag_name("h2").get_attribute("textContent") 
+       print("DLC name: ",dlc_name)
+       link_to_download = filecrypt_domain + "DLC/" + dlc_id.split("'")[1]+ ".dlc"
+       r = requests.get(link_to_download)
+       open("Links/"+dlc_name+".dlc", 'wb').write(r.content)
+       file_list[index] = dlc_name
+      except Exception as e:
+        print('[*] {}'.format(e))
+        continue 
+
+def display_summary():
+  end_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+  exec_end_time=time()
+  duration= exec_end_time- exec_start_time
+  hours, rest = divmod(duration,3600)
+  minutes, seconds = divmod(rest, 60)
+  print(f"\n\nTotal Links found: {link_count}\nTotal downloads started: {dlcount}\nTotal files parsed for Links: {flcount}\nTotal Lines Parsed: {total_lines_parsed}")
+  print(f"Total time taken: {str(hours).split('.')[0]} Hours {str(minutes).split('.')[0]} Minutes {str(seconds).split('.')[0]} Seconds\n\nExiting........\n\n")
+  print("Process ended on Date and Time =", end_time)
+  print("\n\n\n\n")
+
 system('cls')
-exec_time = datetime.now().strftime("%d_%m__%H_%M_%S") 
 start_time  = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 exec_start_time=time()
 print("Process started on Date and Time =", start_time)
@@ -35,6 +70,7 @@ if len(sys.argv)<2:
 else: 
  for i in range(1,len(sys.argv)):
   file_list.append(sys.argv[i])
+parse_filecrypt()
 print(f"\n\nTotal files to be opened: {len(file_list)}")
 file_list_base = list(map(lambda fl : os.path.basename(fl), file_list))
 file_string_list = ", ".join(file_list_base)
@@ -42,9 +78,14 @@ print("Files to be opened: "+file_string_list)
 for fl in file_list:
   flcount+=1
   if not os.path.isfile(fl):
-    print(f'\nFile path "{fl}" does not exist.\nExiting...\n\n')
-    # input("Press any key to exit")
+   if(flcount==len(file_list)):
+    print(f'\nFile path "{fl}" does not exist.')
+    display_summary()
     sys.exit()
+   else:
+    print(f'\nFile path "{fl}" does not exist.\nMoving to next file...')
+    print("\n######################################################################################################")
+    continue 
   else:
    # chrome_run = os.system('"chrome.exe -remote-debugging-port=4000 --user-data-dir="D:/College/Projects/zippyshare-dl/Selenium/Chrome_Test_Profile"') 
    # print(f"this is chrom run {chrome_run}")
@@ -103,20 +144,12 @@ for fl in file_list:
             print(f'\nFile: "{os.path.basename(fl)}" successfully parsed!\nMoving to next file...')
             print("\n######################################################################################################")
            if(flcount==len(file_list)):
-            end_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            exec_end_time=time()
-            duration= exec_end_time- exec_start_time
-            hours, rest = divmod(duration,3600)
-            minutes, seconds = divmod(rest, 60)
-            print(f"\n\nTotal Links found: {link_count}\nTotal downloads started: {dlcount}\nTotal files parsed for Links: {flcount}\nTotal Lines Parsed: {total_lines_parsed}")
-            print(f"Total time taken: {str(hours).split('.')[0]} Hours {str(minutes).split('.')[0]} Minutes {str(seconds).split('.')[0]} Seconds\n\nExiting........\n\n")
-            print("Process ended on Date and Time =", end_time)
-            print("\n\n\n\n")
+             display_summary()
            # if(zipp_link):
             # os.system(f"subl {dl_Links}")
             # os.system('"C:/Program Files (x86)/Internet Download Manager/IDMan.exe"')
             # break 
-           # sys.exit()
+          #  sys.exit()
            break
        elif not line.strip() or line.strip()[0:4] !="http":
            print(f'No Link found on Line {lines_parsed}:"'+line.strip()+'" it is either Empty or Invalid\nMoving to next line....\n')
