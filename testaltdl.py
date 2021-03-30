@@ -31,8 +31,7 @@ def parse_filecrypt():
        if dlc_id is None:
              raise ValueError('%s is not supported. Try opening the link manually.' % item)
              if(index+1==len(file_list)):
-              display_summary()
-              sys.exit()
+              break
              else:
               print("Moving to next item...")
               continue
@@ -45,8 +44,7 @@ def parse_filecrypt():
       except Exception as e:
         print('[*] {}'.format(e))
         if(index+1==len(file_list)):
-            display_summary()
-            sys.exit()
+            break
         else:
         	print("Moving to next item...")
         	continue 
@@ -67,7 +65,7 @@ print("Process started on Date and Time =", start_time)
 options = webdriver.ChromeOptions()
 options.add_argument('--ignore-certificate-errors')
 options.add_argument('--ignore-ssl-errors')
-options.add_argument('user-data-dir=D:/College/Projects/zippyshare-dl/Selenium/Chrome_Test_Profile') 
+options.add_argument('user-data-dir=./Selenium/Chrome_Test_Profile') 
 # options.add_argument("--headless")
 # options.add_experimental_option("debuggerAddress", "localhost:4000")
 print("\n\nOpening browser\nThis process will take a few seconds...\n")
@@ -99,7 +97,6 @@ for fl in file_list:
     continue 
   else:
    flcount_parsed+=1
-   # chrome_run = os.system('"chrome.exe -remote-debugging-port=4000 --user-data-dir="D:/College/Projects/zippyshare-dl/Selenium/Chrome_Test_Profile"') 
    # print(f"this is chrom run {chrome_run}")
    # exec_time = datetime.now().strftime("%d_%m__%H_%M_%S") 
    # start_time  = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -157,11 +154,7 @@ for fl in file_list:
             print("\n######################################################################################################")
            if(flcount==len(file_list)):
              display_summary()
-           # if(zipp_link):
-            # os.system(f"subl {dl_Links}")
-            # os.system('"C:/Program Files (x86)/Internet Download Manager/IDMan.exe"')
-            # break 
-          #  sys.exit()
+             sys.exit()
            break
        elif not line.strip() or line.strip()[0:4] !="http":
            print(f'No Link found on Line {lines_parsed}:"'+line.strip()+'" it is either Empty or Invalid\nMoving to next line....\n')
@@ -202,6 +195,16 @@ for fl in file_list:
           sleep(0.5)
           browser.switch_to.window(browser.window_handles[tab_count])
           dlcount+=1
+         elif(line.find('drive')!=-1):
+          tab_count+=1
+          if(line.find('uc?')!=-1):
+           modified_drive_link = line.replace("uc?","open?") 
+           browser.get(modified_drive_link)
+          print("Could not find the download link\nProceeding to next..\n\n")
+          browser.execute_script("window.open('');")
+          sleep(0.5)
+          browser.switch_to.window(browser.window_handles[tab_count])
+          continue 
          else:
           raise NoSuchElementException 
         except NoSuchElementException:
