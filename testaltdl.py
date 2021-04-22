@@ -38,9 +38,22 @@ def parse_filecrypt():
        dlc_name = browser.find_element_by_tag_name("h2").get_attribute("textContent") 
        print("DLC name: ",dlc_name)
        link_to_download = filecrypt_domain + "DLC/" + dlc_id.split("'")[1]+ ".dlc"
+       file_path = "Links/"+dlc_name+".dlc"
+       if os.path.isfile(file_path):
+       	if os.path.getsize(file_path)==0:
+       		print("File exists but with size 0\n Deleteing File and Downloading Again")
+       		remove(file_path)
+       	else:
+          file_list[index] = file_path
+          print("File already exists, Skipping Download...")
+          if(index+1==len(file_list)):
+            break
+          else:
+            print("Moving to next file...")
+            continue 
        r = requests.get(link_to_download)
-       open("Links/"+dlc_name+".dlc", 'wb').write(r.content)
-       file_list[index] = "Links/"+dlc_name+".dlc"
+       open(file_path, 'wb').write(r.content)
+       file_list[index] = file_path
       except Exception as e:
         print('[*] {}'.format(e))
         if(index+1==len(file_list)):
@@ -55,7 +68,8 @@ def display_summary():
   duration= exec_end_time- exec_start_time
   hours, rest = divmod(duration,3600)
   minutes, seconds = divmod(rest, 60)
-  print(f"\n\nTotal Links found: {link_count}\nTotal downloads started: {dlcount}\nTotal files parsed for Links: {flcount_parsed}/{flcount}\nTotal Lines Parsed: {total_lines_parsed}")
+  print("\n############################  Summary   ##################################################")
+  print(f"Total Links found: {link_count}\nTotal downloads started: {dlcount}\nTotal files parsed for Links: {flcount_parsed}/{flcount}\nTotal Lines Parsed: {total_lines_parsed}")
   print(f"Total time taken: {str(hours).split('.')[0]} Hours {str(minutes).split('.')[0]} Minutes {str(seconds).split('.')[0]} Seconds\n\nExiting........\n\n")
   print("Process ended on Date and Time =", end_time)
   print("\n\n\n\n")
@@ -97,6 +111,9 @@ for fl in file_list:
     continue 
   else:
    flcount_parsed+=1
+   file_skipped= True
+   zipp_link = False
+   url_list=[]
    # print(f"this is chrom run {chrome_run}")
    # exec_time = datetime.now().strftime("%d_%m__%H_%M_%S") 
    # start_time  = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -115,8 +132,6 @@ for fl in file_list:
    # print("\n\nConnecting with browser\nThis process will take a few seconds...\n")
    # browser = webdriver.Chrome('./Selenium/chromedriver',options=options)
    # print('\nOpening file "'+os.path.basename(fl)+ '" to read links...\n\n')
-   zipp_link = False
-   url_list=[]
    if fl.lower().endswith('.txt'):
     print("Reading from text file...")
     file1 = open(fl, 'r')
@@ -148,7 +163,7 @@ for fl in file_list:
             remove(temp_file)
            total_lines_parsed+=lines_parsed
            if(zipp_link):
-            print(f'\n\nDownload Links saved to file "{dl_Links}"\nLocated at "{os.path.realpath(dl_Links)}"')
+            print(f'\n\nDownload Links saved to file "{os.path.basename(dl_Links)}"\nLocated at "{os.path.realpath(dl_Links)}"')
            if(flcount!=len(file_list)):
             print(f'\nFile: "{os.path.basename(fl)}" successfully parsed!\nMoving to next file...')
             print("\n######################################################################################################")
@@ -180,7 +195,26 @@ for fl in file_list:
           size= len(fl) 
           mod_string = fl[:size - 4] 
           orig_name=os.path.basename(mod_string)
-          dl_Links="{}_dl_links.txt".format(orig_name)
+          dl_Links="Links/{}_dl_links.txt".format(orig_name)
+          if os.path.isfile(dl_Links) and file_skipped:
+            if os.path.getsize(dl_Links)==0:
+              print("File exists but with size 0\n Deleteing File and Downloading Again")
+              remove(dl_Links)
+            else:
+              skip = input("Dl_Links File already exists,Do you want to skip downloading?(Y/N)")
+              if(flcount==len(file_list) and skip.upper()=="Y"):
+                file_skipped = True
+                print(f'\n\nDownload Links saved to file "{os.path.basename(dl_Links)}"\nLocated at "{os.path.realpath(dl_Links)}"')
+                display_summary()
+                sys.exit()
+              elif(flcount!=len(file_list) and skip.upper()=="Y"):
+                file_skipped = True
+                print(f"\nSkipping file {os.path.basename(fl)} \nMoving to next file....")
+                print("\n######################################################################################################")
+                break  
+              else:
+                file_skipped = False
+                print("Downloading Links again") 
           file2 = open(dl_Links, "a") 
           file2.write(element+"\n")
           dlcount+=1 
