@@ -1,3 +1,3 @@
 env/Scripts/activate
-python testaltdl.py 
+python main.py 
 deactivate
