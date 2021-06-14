@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 import requests
 from time import sleep,time
 from os import system, remove
@@ -24,41 +25,43 @@ exec_start_time=time()
 def parse_filecrypt():  
   for index,item in enumerate(file_list):
     global tab_count
+    # print(f"\nLink {item}\n")
     if(item.find('filecrypt')!=-1):
       print(f"\nFound filecrypt Link: {item}\nGetting dlc from filecrypt..")
       try:
        browser.get(item)
-       dlc_id = browser.find_element_by_class_name("dlcdownload").get_attribute("onclick")
-       if dlc_id is None:
-             raise ValueError('%s is not supported. Try opening the link manually.' % item)
-             if(index+1==len(file_list)):
-              break
-             else:
-              print("Moving to next item...")
-              tab_count+=1 
-              browser.execute_script("window.open('');")
-              sleep(0.5)
-              browser.switch_to.window(browser.window_handles[tab_count])
-              continue
-       dlc_name = browser.find_element_by_tag_name("h2").get_attribute("textContent") 
-       print("DLC name: ",dlc_name)
-       link_to_download = filecrypt_domain + "DLC/" + dlc_id.split("'")[1]+ ".dlc"
-       file_path = "Links/"+dlc_name+".dlc"
-       if os.path.isfile(file_path):
-        if os.path.getsize(file_path)==0:
-            print("File exists but with size 0\n Deleteing File and Downloading Again")
-            remove(file_path)
+       try:
+       	dlc_id = browser.find_element_by_class_name("dlcdownload").get_attribute("onclick")
+        dlc_name = browser.find_element_by_tag_name("h2").get_attribute("textContent") 
+        print("DLC name: ",dlc_name)
+        link_to_download = filecrypt_domain + "DLC/" + dlc_id.split("'")[1]+ ".dlc"
+        file_path = "Links/"+dlc_name+".dlc"
+        if os.path.isfile(file_path):
+         if os.path.getsize(file_path)==0:
+             print("File exists but with size 0\n Deleteing File and Downloading Again")
+             remove(file_path)
+         else:
+           file_list[index] = file_path
+           print(f"{file_path} already exists\n\tSkipping Download...")
+           if(index+1==len(file_list)):
+             break
+           else:
+             print("\t\tMoving to next file...\n")
+             continue 
+        r = requests.get(link_to_download)
+        open(file_path, 'wb').write(r.content)
+        file_list[index] = file_path
+       except: 
+       	raise ValueError('\nUnable to find DLC \n%s is not supported. Try opening the link manually.' % item)
+        if(index+1==len(file_list)):
+         break
         else:
-          file_list[index] = file_path
-          print(f"{file_path} already exists\n\tSkipping Download...")
-          if(index+1==len(file_list)):
-            break
-          else:
-            print("\t\tMoving to next file...\n")
-            continue 
-       r = requests.get(link_to_download)
-       open(file_path, 'wb').write(r.content)
-       file_list[index] = file_path
+         print("Moving to next item...")
+         tab_count+=1 
+         browser.execute_script("window.open('');")
+         sleep(0.5)
+         browser.switch_to.window(browser.window_handles[tab_count])
+         continue
       except Exception as e:
         print('[*] {}'.format(e))
         if(index+1==len(file_list)):
@@ -70,6 +73,14 @@ def parse_filecrypt():
             sleep(0.5)
             browser.switch_to.window(browser.window_handles[tab_count])
             continue 
+            # Alternate pattern r"(https?:\/\/)?(\w*\.)?(\w+)\.(.+)"
+    elif(re.match(r"https?:\/\/(\w*\.)?(\w+)\.(.+)",item) is not None and item.find('filecrypt')==-1):
+      patt = "Links/"+re.findall(r"https?://(\w*\.)?(\w+)\..+",item)[0][1]+datetime.now().strftime("_%d_%m_%y")+".txt"
+      lfl = open(patt,'a')
+      print(f"\nLink: {item} saved to file {patt}")
+      lfl.write("\n"+item+"\n")
+      lfl.close()
+      file_list[index] = patt 
 
 def display_summary():
   end_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -111,6 +122,7 @@ if len(sys.argv)<2:
 else: 
  for i in range(1,len(sys.argv)):
   file_list.append(sys.argv[i])
+  
 parse_filecrypt()
 print(f"\n\nTotal files to be opened: {len(file_list)}")
 file_list_base = list(map(lambda fl : os.path.basename(fl), file_list))
@@ -299,6 +311,7 @@ for fl in file_list:
           else:
            browser.get(line)
            link_count += 1 
+           print(f'Link {link_count}: "{line.strip()}" found on Line {lines_parsed}.\n\tLink successfully opened.\n\t\tProceeding to download file.... ')
            raise NoSuchElementException 
          except NoSuchElementException:
           tab_count+=1 
