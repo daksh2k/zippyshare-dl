@@ -7,8 +7,9 @@ from os import system, remove
 from dcryptit import read_dlc
 from datetime import datetime
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options 
 from selenium.common.exceptions import *
+from colorama import Fore,init
+init(autoreset=True)
 
 # Summary vars initialization
 link_count = 0 
@@ -25,7 +26,6 @@ exec_start_time=time()
 def parse_filecrypt():  
   for index,item in enumerate(file_list):
     global tab_count
-    # print(f"\nLink {item}\n")
     if(item.find('filecrypt')!=-1):
       print(f"\nFound filecrypt Link: {item}\nGetting dlc from filecrypt..")
       try:
@@ -52,26 +52,18 @@ def parse_filecrypt():
         open(file_path, 'wb').write(r.content)
         file_list[index] = file_path
        except: 
-       	raise ValueError('\nUnable to find DLC \n%s is not supported. Try opening the link manually.' % item)
+       	print(Fore.RED+f"\nUnable to find DLC \n{item} is not supported. Try opening the link manually.")
         if(index+1==len(file_list)):
          break
         else:
-         print("Moving to next item...")
-         tab_count+=1 
-         browser.execute_script("window.open('');")
-         sleep(0.5)
-         browser.switch_to.window(browser.window_handles[tab_count])
+         open_newtab()
          continue
       except Exception as e:
-        print('[*] {}'.format(e))
+        print(Fore.RED+f"[*] {e}")
         if(index+1==len(file_list)):
             break
         else:
-            print("Moving to next item...")
-            tab_count+=1 
-            browser.execute_script("window.open('');")
-            sleep(0.5)
-            browser.switch_to.window(browser.window_handles[tab_count])
+            open_newtab()
             continue 
             # Alternate pattern r"(https?:\/\/)?(\w*\.)?(\w+)\.(.+)"
     elif(re.match(r"https?:\/\/(\w*\.)?(\w+)\.(.+)",item) is not None and item.find('filecrypt')==-1):
@@ -82,6 +74,48 @@ def parse_filecrypt():
       lfl.close()
       file_list[index] = patt 
 
+#Open new Tab in the browser
+def open_newtab(silent=False):
+  global tab_count
+  if not silent:
+    print("Moving to next item...")
+  tab_count+=1 
+  browser.execute_script("window.open('');")
+  sleep(0.5)
+  browser.switch_to.window(browser.window_handles[tab_count])
+
+#Check if file already exists in system  
+def check_dup(dl_links,file_skipped):
+  if os.path.isfile(dl_Links) and file_skipped:
+   if os.path.getsize(dl_Links)==0:
+    print("File exists but with size 0\n Deleteing File and Downloading Again")
+    remove(dl_Links)
+   else:
+    skip = input(f"\n\nDl_Links File {dl_Links} already exists.\nDo you want to skip downloading?(Y/N):  ")
+    if(flcount==len(file_list) and skip.upper()=="Y"):
+      file_skipped = True
+      # link_count-=1
+      print(f'\n\nDownload Links saved to file "{os.path.basename(dl_Links)}"\nLocated at "{os.path.realpath(dl_Links)}"')
+      file1.close()	
+      if fl.lower().endswith('.dlc'):
+       remove(temp_file)
+      display_summary()
+      sys.exit()
+    elif(flcount!=len(file_list) and skip.upper()=="Y"):
+      file_skipped = True
+      file1.close()
+      if fl.lower().endswith('.dlc'):
+       remove(temp_file)
+      print(f'\n\nDownload Links saved to file "{os.path.basename(dl_Links)}"\nLocated at "{os.path.realpath(dl_Links)}"')
+      print(f"\nSkipping file {os.path.basename(fl)} \nMoving to next file....")
+      print("\n######################################################################################################")
+      return 0
+    else:
+      file_skipped = False
+      print("Downloading Links again") 
+      remove(dl_Links)
+
+#Print the relevant statistics after completion.       
 def display_summary():
   end_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
   exec_end_time=time()
@@ -92,7 +126,7 @@ def display_summary():
   print(f"\nTotal Links found: {link_count}\nTotal downloads started: {dlcount}\nTotal files parsed for Links: {flcount_parsed}/{flcount}\nTotal Lines Parsed: {total_lines_parsed}")
   print(f"Total time taken: {str(hours).split('.')[0]} Hours {str(minutes).split('.')[0]} Minutes {str(seconds).split('.')[0]} Seconds\n\nExiting........\n\n")
   print("Process ended on Date and Time =", end_time)
-  print("\n\n\n\n")
+  print("\n\n")
 
 system('cls')
 print("Process started on Date and Time =", start_time)
@@ -201,34 +235,9 @@ for fl in file_list:
            mod_string = fl[:size - 4] 
            orig_name=os.path.basename(mod_string)
            dl_Links="Links/{}_dl_links.txt".format(orig_name)
-           if os.path.isfile(dl_Links) and file_skipped:
-             if os.path.getsize(dl_Links)==0:
-               print("File exists but with size 0\n Deleteing File and Downloading Again")
-               remove(dl_Links)
-             else:
-               skip = input(f"\n\nDl_Links File {dl_Links} already exists.\nDo you want to skip downloading?(Y/N):  ")
-               if(flcount==len(file_list) and skip.upper()=="Y"):
-                 file_skipped = True
-                 # link_count-=1
-                 print(f'\n\nDownload Links saved to file "{os.path.basename(dl_Links)}"\nLocated at "{os.path.realpath(dl_Links)}"')
-                 if fl.lower().endswith('.dlc'):
-                  file.close()	
-                  remove(temp_file)
-                 display_summary()
-                 sys.exit()
-               elif(flcount!=len(file_list) and skip.upper()=="Y"):
-                 file_skipped = True
-                 if fl.lower().endswith('.dlc'):
-                  file1.close()
-                  remove(temp_file)
-                 print(f'\n\nDownload Links saved to file "{os.path.basename(dl_Links)}"\nLocated at "{os.path.realpath(dl_Links)}"')
-                 print(f"\nSkipping file {os.path.basename(fl)} \nMoving to next file....")
-                 print("\n######################################################################################################")
-                 break  
-               else:
-                 file_skipped = False
-                 remove(dl_Links)
-                 print("Downloading Links again") 
+           dup = check_dup(dl_Links,file_skipped)
+           if dup==0:
+             break
            file2 = open(dl_Links, "a")
            browser.get(line)
            file_skipped = False
@@ -238,7 +247,6 @@ for fl in file_list:
            # element2.click()
            element = browser.find_element_by_xpath("//*[@id='dlbutton']").get_attribute("href"); 
            file2.write(element+"\n")
-
            dlcount+=1 
            zipp_link = True 
           elif(line.find('pixeldrain')!=-1):
@@ -246,39 +254,14 @@ for fl in file_list:
            mod_string = fl[:size - 4] 
            orig_name=os.path.basename(mod_string)
            dl_Links="Links/{}_dl_links.txt".format(orig_name)
-           if os.path.isfile(dl_Links) and file_skipped:
-             if os.path.getsize(dl_Links)==0:
-               print("File exists but with size 0\n Deleteing File and Downloading Again")
-               remove(dl_Links)
-             else:
-               skip = input(f"\n\nDl_Links File {dl_Links} already exists.\nDo you want to skip downloading?(Y/N):  ")
-               if(flcount==len(file_list) and skip.upper()=="Y"):
-                 file_skipped = True
-                 # link_count-=1
-                 print(f'\n\nDownload Links saved to file "{os.path.basename(dl_Links)}"\nLocated at "{os.path.realpath(dl_Links)}"')
-                 if fl.lower().endswith('.dlc'):
-                  file1.close()	
-                  remove(temp_file)
-                 display_summary()
-                 sys.exit()
-               elif(flcount!=len(file_list) and skip.upper()=="Y"):
-                 file_skipped = True
-                 if fl.lower().endswith('.dlc'):
-                  file1.close()	
-                  remove(temp_file)
-                 print(f'\n\nDownload Links saved to file "{os.path.basename(dl_Links)}"\nLocated at "{os.path.realpath(dl_Links)}"')
-                 print(f"\nSkipping file {os.path.basename(fl)} \nMoving to next file....")
-                 print("\n######################################################################################################")
-                 break  
-               else:
-                 file_skipped = False
-                 print("Downloading Links again") 
+           dup = check_dup(dl_Links,file_skipped)
+           if dup==0:
+             break
            file3 = open(dl_Links, "a")
            # browser.get(line)
            file_skipped = False
            link_count += 1 
            print(f'Link {link_count}: "{line.strip()}" found on Line {lines_parsed}.\n\tLink successfully opened.\n\t\tProceeding to download file.... ') 
-           # element = browser.find_element_by_xpath("//*[@id='dlbutton']").get_attribute("href");
            element = "https://pixeldrain.com/api/file/"+line.split('/')[4]+"?download"
            file3.write(element+"\n")
            dlcount+=1 
@@ -289,12 +272,9 @@ for fl in file_list:
            print(f'Link {link_count}: "{line.strip()}" found on Line {lines_parsed}.\n\tLink successfully opened.\n\t\tProceeding to download file.... ') 
            element = browser.find_element_by_xpath("//*[@id='btndl']")
            browser.find_element_by_xpath("//*[@id='overlay']").click()
-           tab_count+=1
            sleep(0.5)
            element.click()
-           browser.execute_script("window.open('');")
-           sleep(0.5)
-           browser.switch_to.window(browser.window_handles[tab_count])
+           open_newtab(silent=True)
            dlcount+=1
           elif(line.find('drive')!=-1):
            tab_count+=1
@@ -303,7 +283,7 @@ for fl in file_list:
             browser.get(modified_drive_link)
             link_count += 1 
             print(f'Link {link_count}: "{line.strip()}" found on Line {lines_parsed}.\n\tLink successfully opened.\n\t\tProceeding to download file.... ') 
-           print("Could not find the download link\n\tProceeding to next..\n\n")
+           print(Fore.RED+"Could not find the download link\n\tProceeding to next..\n\n")
            browser.execute_script("window.open('');")
            sleep(0.5)
            browser.switch_to.window(browser.window_handles[tab_count])
@@ -314,25 +294,21 @@ for fl in file_list:
            print(f'Link {link_count}: "{line.strip()}" found on Line {lines_parsed}.\n\tLink successfully opened.\n\t\tProceeding to download file.... ')
            raise NoSuchElementException 
          except NoSuchElementException:
-          tab_count+=1 
-          print("Could not find the download link\n\tProceeding to next..\n\n")
-          browser.execute_script("window.open('');")
-          sleep(0.5)
-          browser.switch_to.window(browser.window_handles[tab_count])
+          print(Fore.RED+"Could not find the download link\n\tProceeding to next..\n\n")
+          open_newtab(silent=True)
           continue 
-         print(f"\nDownload successfully started for Link {link_count}: {line.strip()}\n\tProceeding to next link.....\n")
+         print(Fore.GREEN+f"\nDownload successfully started for Link {link_count}: {line.strip()}\n\tProceeding to next link.....\n")
         except WebDriverException:
             tab_count+=1
-            print(f"Unable to open Link: {line.strip()}\n")
+            print(Fore.RED+f"Unable to open Link: {line.strip()}\n")
             for i in range(5):
              sleep(0.5)
              browser.refresh()
-             print(f"Refreshing page...\tRetry: {i+1}",end="\r")
+             print(Fore.YELLOW+f"Refreshing page...\tRetry: {i+1}",end="\r")
              if(i==4):
-              print(f"\n\nMoving to next Link...\tRetried count: {i+1}\n")    
+              print(Fore.RED+f"\n\nMoving to next Link...\tRetried count: {i+1}\n")    
             sleep(0.5)
             browser.execute_script("window.open('https://www.google.com','_blank');")
             sleep(0.5)
             browser.switch_to.window(browser.window_handles[tab_count])
-            continue
-  file1.close()     
+            continue  
