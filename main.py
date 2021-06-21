@@ -171,6 +171,7 @@ else:
 
 #Check if filecrypt link  
 parse_filecrypt()
+file_list = list(set(list(map(lambda fl : os.path.realpath(fl), file_list))))
 print(f"\n\nTotal files to be opened: {len(file_list)}")
 print("Files to be opened: "+", ".join(list(map(lambda fl : os.path.basename(fl), file_list))))
 
