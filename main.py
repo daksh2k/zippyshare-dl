@@ -23,6 +23,8 @@ flcount_parsed = 0
 total_lines_parsed = 0
 file_list=[]
 file_list_done=[]
+common_names = ["requirements.txt","req.txt","requirement.txt"]
+dirs_to_check = ['.',os.path.expanduser("~")+"\\Downloads"]
 filecrypt_domain = "https://www.filecrypt.cc/"
 start_time  = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 exec_start_time=time()
@@ -142,7 +144,7 @@ options.add_argument('--allow-insecure-localhost')
 options.add_argument('--ignore-certificate-errors')
 options.add_argument('--ignore-ssl-errors=yes')
 options.add_argument('user-data-dir='+cwd+'\\Selenium\\Chrome_Test_Profile')  
-# options.add_experimental_option("debuggerAddress", "localhost:4000")
+options.add_experimental_option("debuggerAddress", "localhost:4000")
 # options.add_argument("--headless")
 # caps = DesiredCapabilities.CHROME
 # caps['acceptInsecureCerts']= True
@@ -168,13 +170,20 @@ if len(sys.argv)<2:
 else: 
     for i in range(1,len(sys.argv)):
         file_list.append(sys.argv[i])
+dirs_to_check_s = '\n\t\t'.join(list(map(lambda dir_p : os.path.realpath(dir_p), dirs_to_check)))
+get_fdlc = input(f"\nDo you want to add dlc and text files from \n\t\t{dirs_to_check_s}\nthat were created today?(Y/N): ")
+if get_fdlc.upper()=="Y":
+    for dirParse in dirs_to_check:
+        for entry in os.scandir(dirParse):
+            if entry.is_file() and entry.name not in common_names and os.path.splitext(entry)[1].lower() in (".txt", ".dlc") and (time() - os.path.getctime(entry))/3600 < 24:
+                file_list.append(entry.name)
+                print(Fore.GREEN+f"{entry.name} added to List!")
 
 #Check if filecrypt link  
 parse_filecrypt()
 file_list = list(set(list(map(lambda fl : os.path.realpath(fl), file_list))))
 print(f"\n\nTotal files to be opened: {len(file_list)}")
 print("Files to be opened: "+", ".join(list(map(lambda fl : os.path.basename(fl), file_list))))
-
 #Run Through each File
 for fl in file_list:
       flcount+=1
