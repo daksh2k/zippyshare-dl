@@ -174,8 +174,9 @@ if get_fdlc.upper()=="Y":
     print("\nAdding following files to the list: \t")
     for dirParse in dirs_to_check:
         for i,entry in enumerate(os.scandir(dirParse)):
-            if entry.is_file() and entry.name not in common_names and os.path.splitext(entry.name)[1].lower() in (".txt", ".dlc") and (time() - os.path.getctime(entry))/3600 < 24:
-                file_list.append(os.path.join(dirParse, entry.name))
+            full_p = os.path.join(os.path.realpath(dirParse), entry.name)
+            if entry.is_file() and entry.name not in common_names and os.path.splitext(entry.name)[1].lower() in (".txt", ".dlc") and (exec_start_time - os.path.getctime(full_p))/3600 < 24:
+                file_list.append(full_p)
                 print(Fore.CYAN+f"\t\t{entry.name}")
 
 #Remove Duplicates and Print Files 
@@ -217,10 +218,10 @@ for fl in file_list:
           pixel_link = False
           url_list=[]
           print(f'\nOpening File {flcount} of {len(file_list)}: "{os.path.basename(fl)}"\nLocated at: "{os.path.realpath(fl)}"\n')    
-          if fl.lower().endswith('.txt'):
+          if os.path.splitext(os.path.basename(fl))[1] == '.txt':
               print("Reading from text file...")
               file1 = open(fl, 'r')
-          elif fl.lower().endswith('.dlc'):
+          elif os.path.splitext(os.path.basename(fl))[1] == '.dlc':
               print("Reading from dlc file...")
               url_list += read_dlc(path=fl)
               temp_file=f"temp_{datetime.now().strftime('%d_%m__%H_%M_%S')}.txt"
