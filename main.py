@@ -26,7 +26,7 @@ file_list_done=[]
 common_names = ["requirements.txt","req.txt","requirement.txt"]
 dirs_to_check = ['.',os.path.expanduser("~")+"\\Downloads"]
 filecrypt_domain = "https://www.filecrypt.cc/"
-start_time  = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+start_time  = datetime.now().strftime("%d/%m/%Y %I:%M:%S %p")
 exec_start_time=time()
 
 #Get dlc from Filecrypt Links
@@ -123,19 +123,15 @@ def check_dup(dl_links,file_skipped):
 
 #Print the relevant statistics after completion.       
 def display_summary():
-   end_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-   exec_end_time=time()
-   duration= exec_end_time- exec_start_time
-   hours, rest = divmod(duration,3600)
+   hours, rest = divmod(time() - exec_start_time,3600)
    minutes, seconds = divmod(rest, 60)
    print("\n############################  Summary   ##################################################")
    print(f"\nTotal Links found: {link_count_tot}\nLinks successfully opened: {link_count}\nTotal downloads started: {dlcount}\nTotal files parsed for Links: {flcount_parsed}/{flcount}\nTotal Lines Parsed: {total_lines_parsed}")
-   print(f"Total time taken: {str(hours).split('.')[0]} Hours {str(minutes).split('.')[0]} Minutes {str(seconds).split('.')[0]} Seconds\n\nExiting........\n\n")
-   print("Process ended on Date and Time =", end_time)
-   print("\n\n")
+   print(f"Total time taken: {str(minutes).split('.')[0]} {'Minute' if 1<=minutes<2 else 'Minutes'} {str(seconds).split('.')[0]} Seconds\n\nExiting........\n\n")
+   print(f"Process ended on Date and Time: {datetime.now().strftime('%d/%m/%Y %I:%M:%S %p')}\n\n")
 
 system('cls')
-print("Process started on Date and Time =", start_time)
+print(f"Process started on Date and Time: {start_time}")
 cwd = os.getcwd()
 print(f"Current working directory: {cwd}\n")
 options = webdriver.ChromeOptions()
@@ -144,7 +140,7 @@ options.add_argument('--allow-insecure-localhost')
 options.add_argument('--ignore-certificate-errors')
 options.add_argument('--ignore-ssl-errors=yes')
 options.add_argument('user-data-dir='+cwd+'\\Selenium\\Chrome_Test_Profile')  
-options.add_experimental_option("debuggerAddress", "localhost:4000")
+# options.add_experimental_option("debuggerAddress", "localhost:4000")
 # options.add_argument("--headless")
 # caps = DesiredCapabilities.CHROME
 # caps['acceptInsecureCerts']= True
@@ -170,20 +166,25 @@ if len(sys.argv)<2:
 else: 
     for i in range(1,len(sys.argv)):
         file_list.append(sys.argv[i])
-dirs_to_check_s = '\n\t\t'.join(list(map(lambda dir_p : os.path.realpath(dir_p), dirs_to_check)))
-get_fdlc = input(f"\nDo you want to add dlc and text files from \n\t\t{dirs_to_check_s}\nthat were created today?(Y/N): ")
-if get_fdlc.upper()=="Y":
-    for dirParse in dirs_to_check:
-        for entry in os.scandir(dirParse):
-            if entry.is_file() and entry.name not in common_names and os.path.splitext(entry)[1].lower() in (".txt", ".dlc") and (time() - os.path.getctime(entry))/3600 < 24:
-                file_list.append(entry.name)
-                print(Fore.GREEN+f"{entry.name} added to List!")
 
-#Check if filecrypt link  
+#Automatically Add Files from Certain Directories
+dirs_to_check_s = '\n\t\t'.join(list(map(lambda dir_p : os.path.realpath(dir_p), dirs_to_check)))
+get_fdlc = input("\nDo you want to add \".dlc\" and \".txt\" files from \n\t\t"+Fore.YELLOW+dirs_to_check_s+Fore.RESET+"\nto the list?(Only adds files created within last 24 hours)(Y/N): ")
+if get_fdlc.upper()=="Y":
+    print("\nAdding following files to the list: \t")
+    for dirParse in dirs_to_check:
+        for i,entry in enumerate(os.scandir(dirParse)):
+            if entry.is_file() and entry.name not in common_names and os.path.splitext(entry.name)[1].lower() in (".txt", ".dlc") and (time() - os.path.getctime(entry))/3600 < 24:
+                file_list.append(os.path.join(dirParse, entry.name))
+                print(Fore.CYAN+f"\t\t{entry.name}")
+
+#Remove Duplicates and Print Files 
 parse_filecrypt()
 file_list = list(set(list(map(lambda fl : os.path.realpath(fl), file_list))))
-print(f"\n\nTotal files to be opened: {len(file_list)}")
-print("Files to be opened: "+", ".join(list(map(lambda fl : os.path.basename(fl), file_list))))
+print(f"\n{'Files' if len(file_list)>1 else 'File'} to be opened:\t\t")
+for ind,fl in enumerate(file_list):
+    print(Fore.GREEN+f"\t\t{ind+1}. {os.path.basename(fl)}")
+
 #Run Through each File
 for fl in file_list:
       flcount+=1
