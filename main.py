@@ -23,6 +23,7 @@ flcount_parsed = 0
 total_lines_parsed = 0
 file_list=[]
 file_list_done=[]
+file_list_temp=[]
 common_names = ["requirements.txt","req.txt","requirement.txt"]
 dirs_to_check = ['.',os.path.expanduser("~")+"\\Downloads"]
 filecrypt_domain = "https://www.filecrypt.cc/"
@@ -169,15 +170,20 @@ else:
 
 #Automatically Add Files from Certain Directories
 dirs_to_check_s = '\n\t\t'.join(list(map(lambda dir_p : os.path.realpath(dir_p), dirs_to_check)))
-get_fdlc = input("\nDo you want to add \".dlc\" and \".txt\" files from \n\t\t"+Fore.YELLOW+dirs_to_check_s+Fore.RESET+"\nto the list?(Only adds files created within last 24 hours)(Y/N): ")
+print("\nGetting \".dlc\" and \".txt\" files from: \n\t\t"+Fore.YELLOW+dirs_to_check_s+Fore.RESET+"\n")
+print("Following files(Created within last 24 hours) can be added to the File list: \t")
+for dirParse in dirs_to_check:
+    for i,entry in enumerate(os.scandir(dirParse)):
+        full_p = os.path.join(os.path.realpath(dirParse), entry.name)
+        if entry.is_file() and entry.name not in common_names and os.path.splitext(entry.name)[1].lower() in (".txt", ".dlc") and (exec_start_time - os.path.getctime(full_p))/3600 < 24:
+            file_list_temp.append(full_p)
+            print(Fore.CYAN+f"\t\t{entry.name}")
+get_fdlc = input("\nDo you want to proceed with the addition?Enter your choice(Y/N): ")
 if get_fdlc.upper()=="Y":
-    print("\nAdding following files to the list: \t")
-    for dirParse in dirs_to_check:
-        for i,entry in enumerate(os.scandir(dirParse)):
-            full_p = os.path.join(os.path.realpath(dirParse), entry.name)
-            if entry.is_file() and entry.name not in common_names and os.path.splitext(entry.name)[1].lower() in (".txt", ".dlc") and (exec_start_time - os.path.getctime(full_p))/3600 < 24:
-                file_list.append(full_p)
-                print(Fore.CYAN+f"\t\t{entry.name}")
+    file_list.extend(file_list_temp) 
+    print(Fore.GREEN+"Done! Added to the List!")  
+else:
+    print(Fore.GREEN+"Okay! Skipped those files!")     
 
 #Remove Duplicates and Print Files 
 parse_filecrypt()
