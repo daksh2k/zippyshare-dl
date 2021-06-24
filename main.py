@@ -151,7 +151,7 @@ try:
     # browser = webdriver.Chrome('./Selenium/chromedriver',options=options,desired_capabilities=caps)
 except Exception as e:
     print(Fore.RED+f"[*] {e}")
-    browser = webdriver.Chrome('./Selenium/chromedriver')
+    browser = webdriver.Chrome()
 print("Browser successfully opened...")
 
 #Creating Folder links to store the files
@@ -208,13 +208,13 @@ for fl in file_list:
               print("Moving to next file...")
               print("\n######################################################################################################")
               continue 
-      elif fl in file_list_done:
+      elif os.path.splitext(os.path.basename(fl))[1] not in ('.txt','.dlc'):
           if(flcount==len(file_list)):
-              print(Fore.RED+f'\nERROR: File "{fl}" already parsed!')
+              print(Fore.RED+f'\nERROR: File "{fl}" format not supported!')
               display_summary()
               sys.exit()
           else:
-              print(Fore.RED+f'\nERROR: File "{fl}" already parsed!')
+              print(Fore.RED+f'\nERROR: File "{fl}" format not supported')
               print("Moving to next file...")
               print("\n######################################################################################################")
               continue 
