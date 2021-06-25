@@ -92,7 +92,7 @@ def open_newtab(tab_count,silent=False,script="window.open('');"):
       print("Moving to next item...")
    tab_count+=1 
    browser.execute_script(script)
-   sleep(0.5)
+   sleep(0.1)
    browser.switch_to.window(browser.window_handles[tab_count])
    return tab_count
 
@@ -332,8 +332,8 @@ for fl in file_list:
                          print(f'Link {link_count_tot}: "{line.strip()}" found on Line {lines_parsed}.\n\tLink successfully opened.\n\t\tProceeding to download file.... ') 
                          element = browser.find_element_by_xpath("//*[@id='btndl']")
                         #  browser.find_element_by_xpath("//*[@id='overlay']").click()
-                         sleep(0.5)
                          element.click()
+                         sleep(0.1)
                          tab_count = open_newtab(tab_count,silent=True)
                          dlcount+=1
                      elif(line.find('drive')!=-1):
@@ -366,6 +366,6 @@ for fl in file_list:
                        print(Fore.YELLOW+f"Refreshing page...\tRetry: {i+1}",end="\r")
                        if(i==4):
                            print(Fore.RED+f"\n\nMoving to next Link...\tRetried count: {i+1}\n")    
-                   sleep(1)
+                   sleep(0.5)
                    tab_count = open_newtab(tab_count,silent=True,script="window.open('https://www.google.com','_blank');")
                    continue 
