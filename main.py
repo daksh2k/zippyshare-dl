@@ -3,7 +3,7 @@ import sys
 import re
 import requests
 from time import sleep,time
-from os import remove
+from os import remove,system
 from dcryptit import read_dlc
 from datetime import datetime
 from selenium import webdriver
@@ -135,7 +135,7 @@ def display_summary():
    print(f"Total time taken: {str(minutes).split('.')[0]} {'Minute' if 1<=minutes<2 else 'Minutes'} {str(seconds).split('.')[0]} Seconds\n\nExiting........\n\n")
    print(f"Process ended on Date and Time: {datetime.now().strftime('%d/%m/%Y %I:%M:%S %p')}\n\n")
 
-print("\n\n\n\n######################################################################################################")
+system("cls")
 print(f"Process started on Date and Time: {start_time}")
 cwd = os.getcwd()
 print(f"Current working directory: {cwd}\n")
