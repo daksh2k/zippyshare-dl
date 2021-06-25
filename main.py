@@ -92,7 +92,8 @@ def open_newtab(tab_count,silent=False,script="window.open('');"):
    if not silent:
       print("Moving to next item...")
    tab_count+=1 
-   browser.execute_script(script)
+   if tab_count == len(browser.window_handles):
+       browser.execute_script(script)
    sleep(0.1)
    browser.switch_to.window(browser.window_handles[tab_count])
    return tab_count
@@ -168,12 +169,9 @@ except Exception as e:
     print(Fore.RED+f"[*] {e}")
     browser = webdriver.Chrome('./Selenium/chromedriver',desired_capabilities=caps)
 print("Browser successfully opened...")
-# browser_len = len(browser.window_handles) #fetching the Number of Opened tabs
-# if browser_len > 1: # Will execute if more than 1 tabs found.
-#     for i in range(browser_len - 1, 0, -1):
-#         browser.switch_to.window(browser.window_handles[i]) #will close the last tab first.
-#         browser.close()
-#     browser.switch_to.window(browser.window_handles[0]) # Switching the driver focus to First tab.
+browser_len = len(browser.window_handles) #fetching the Number of Opened tabs
+if browser_len > 1: 
+      browser.switch_to.window(browser.window_handles[0]) # Switching the browser focus to First tab.
 
 #Creating Folder links to store the files
 if not os.path.exists('Links'):

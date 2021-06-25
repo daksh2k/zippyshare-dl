@@ -18,10 +18,8 @@ def is_file_exists(driver_path):
     try:
         if not os.path.isfile(driver_path):
             print(f"{driver_path} does not exist!")
-            driver_exists = False
-            return driver_exists
-        driver_exists = True
-        return driver_exists     
+            return False
+        return True     
     except Exception as e:
             print(e)
 
@@ -29,7 +27,7 @@ def compare_driver(driver_exists):
     try:
         driver_ver = deal_txt.read_version(driver_mother_path)
         driver_ver_code = deal_reg.reg_version_code(driver_ver)
-        print("chromedriver_ver : {}".format(driver_ver))
+        print(f"chromedriver_ver : {driver_ver}")
         if driver_ver_code == browser_ver_code and driver_exists:
             return True
     except FileNotFoundError:
@@ -50,7 +48,7 @@ def check_browser_ver():
             if deal_reg.is_version(i):
                 return i
     except Exception:
-        print("You do not have Chrome browser.")
+        print("You do not have Chrome browser installed.")
 
 def make_dir():
     try:
@@ -60,7 +58,7 @@ def make_dir():
             raise
 
 def main():
-    driver_path = os.path.join(os.path.realpath(driver_mother_path), "chromedriver.exe")
+    driver_path = os.path.join(os.path.realpath(driver_mother_path),"chromedriver.exe")
     driver_exists = is_file_exists(driver_path)
     if compare_driver(driver_exists):
         return
@@ -68,17 +66,16 @@ def main():
     temp = deal_parse.parse_download_URL(browser_ver_code)
     down_url,new_version = temp
     download_path = os.path.join(driver_mother_path, "chromedriver.zip")
-    print("Chromedriver does not match your Chrome browser version. Downloading...")
-    r = requests.get(down_url)
-    open(download_path, 'wb').write(r.content)
-    print("Download Complete!")
+    print("Chromedriver does not match your Chrome browser version.\nDownloading...")
+    open(download_path, 'wb').write(requests.get(down_url).content)
+    print("Latest Chromdriver downloaded!")
     deal_zip.unzip(driver_mother_path, download_path)
     deal_zip.remove_zip(download_path)
     deal_txt.write_version(driver_mother_path, new_version)
 
 driver_mother_path = "./chromedriver/"
 browser_ver = check_browser_ver()
-print("chromebrowser_ver : {}".format(browser_ver))
+print(f"chromebrowser_ver : {browser_ver}")
 browser_ver_code = deal_reg.reg_version_code(browser_ver)
 
 if __name__ == "__main__":
