@@ -1,18 +1,21 @@
 # Zippyshare downloader and Links Extractor
 Python script to automatically download from Zippyshare using [Selenium package](https://www.selenium.dev/) and [Internet Download Manager](https://www.internetdownloadmanager.com/).\
 Download [IDM](https://www.internetdownloadmanager.com/download.html) from here for downloading multiple files.
-
-1. ### The Links will be saved in a text file which can then be imported to idm from: 
+1. Run the [main.py](./main.py) script after fulfiliing the [Requirements](https://github.com/daksh2k/zippyshare-dl#requirementsinstallation) preferrably in a [virtual env.](https://docs.python.org/3/library/venv.html)
+2. ### The Links will be saved in a text file which can then be imported to idm from: 
    Tasks>Import>from text file
 
-2. Other option is set the `START_DOWNLOADING` variable to True in the [main.py](./main.py) file   
+3. Other option is set the `START_DOWNLOADING` variable to True in the [main.py](./main.py) file   
  which will start downloading instantly. (Useful for less Links) 
-3. See [here](https://github.com/daksh2k/zippyshare-dl/blob/e3acb52c513ea6918e5fbb436c245879b453e89f/main.py#L14-L22) for more configurable options. 
+4. See [here](./main.py#L14-L23) for more configurable options. 
 
 ## Requirements/Installation
 - Platform - Windows only.
 - Chrome Browser.
-- Chromedriver(Included). 
+- Chromedriver(Included).
+- IDM
+   
+   Not required for running the script.(Only For Downloading Links afterwards)
 - Python >= v3.6
 - Install requirements yourself by running the following commands from powershell:
   ``` bash
@@ -48,8 +51,8 @@ Download [IDM](https://www.internetdownloadmanager.com/download.html) from here 
      ![alt text](./examples/invalid.png "Invalid")
 - Summary after completion.
      ![alt text](./examples/summary.png "Summary")
-- Open all Links in new tab in the browser if unsupported Links.
-- Retry Links if unable to Load.  
+- Open Links in new tab in the browser if unsupported Links.
+- Retry Links if unable to Load website.  
   ![alt text](./examples/unable.png "Unable")
 
 

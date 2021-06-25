@@ -14,8 +14,7 @@ def get_to_URL(url):
     req = requests.get(url)
     if req.status_code == 200 and req.ok:
         return req
-    else:
-        print("request error")
+    print("request error")
 
 
 def parse_driver_version():

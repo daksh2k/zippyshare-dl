@@ -20,8 +20,8 @@ def is_file_exists(driver_path):
     try:
         if not os.path.isfile(driver_path):
             shutil.rmtree(driver_mother_path)
-    except Exception:
-        pass
+    except Exception as e:
+            print(e)
 
 def compare_driver():
     try:
@@ -64,11 +64,11 @@ def main():
         return
     make_dir()
     temp = deal_parse.parse_download_URL(browser_ver_code)
-    down_url = temp[0]
-    new_version = temp[1]
+    down_url,new_version = temp
     download_path = os.path.join(driver_mother_path, "chromedriver.zip")
     print("Chromedriver does not match your Chrome browser version. Downloading...")
-    request.urlretrieve(down_url, download_path)
+    r = requests.get(down_url)
+    open(download_path, 'wb').write(r.content)
     print("Download Complete!")
     deal_zip.unzip(driver_mother_path, download_path)
     deal_zip.remove_zip(download_path)
@@ -81,4 +81,3 @@ browser_ver_code = deal_reg.reg_version_code(browser_ver)
 
 if __name__ == "__main__":
     main()
-

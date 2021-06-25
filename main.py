@@ -13,11 +13,12 @@ from colorama import Fore,init
 init(autoreset=True)
 
 #CONFIG VARS
-RETRY_COUNT = 5
-START_DOWNLOADING = False # Start Downloading from Links Directly or just save in a text file.
-ADD_EXTENSIONS = True    # Add Adblocker and IDM Extension to the Browser Instance
+RETRY_COUNT = 3            #Retry If unable to Open Link Min value=1 
+START_DOWNLOADING = False  # Start Downloading from Links Directly or just save in a text file.
+ADD_EXTENSIONS = True      # Add Adblocker and IDM Extension to the Browser Instance
+DIR_CHECK = True           #If you Want to Auto Add files 
 DIRS_TO_CHECK = ['.','./Links',os.path.expanduser("~")+"\\Downloads"] # Following Dirs to automatically check for dlc and text files.
-COMMON_NAMES = ["requirements.txt","req.txt","requirement.txt"] #Common Names to Ignore from Directory  
+COMMON_NAMES = ["requirements.txt","req.txt","requirement.txt"]       #Common Names to Ignore from Directory  
 FILECRYPT_DOMAIN = "https://www.filecrypt.cc/"
 
 # Summary vars initialization
@@ -134,7 +135,8 @@ def display_summary():
    print(f"Total time taken: {str(minutes).split('.')[0]} {'Minute' if 1<=minutes<2 else 'Minutes'} {str(seconds).split('.')[0]} Seconds\n\nExiting........\n\n")
    print(f"Process ended on Date and Time: {datetime.now().strftime('%d/%m/%Y %I:%M:%S %p')}\n\n")
 
-print(f"\n\n\nProcess started on Date and Time: {start_time}")
+print("\n\n\n\n######################################################################################################")
+print(f"Process started on Date and Time: {start_time}")
 cwd = os.getcwd()
 print(f"Current working directory: {cwd}\n")
 
@@ -164,12 +166,12 @@ except Exception as e:
     print(Fore.RED+f"[*] {e}")
     browser = webdriver.Chrome('./Selenium/chromedriver',desired_capabilities=caps)
 print("Browser successfully opened...")
-browser_len = len(browser.window_handles) #fetching the Number of Opened tabs
-if browser_len > 1: # Will execute if more than 1 tabs found.
-    for i in range(browser_len - 1, 0, -1):
-        browser.switch_to.window(browser.window_handles[i]) #will close the last tab first.
-        browser.close()
-    browser.switch_to.window(browser.window_handles[0]) # Switching the driver focus to First tab.
+# browser_len = len(browser.window_handles) #fetching the Number of Opened tabs
+# if browser_len > 1: # Will execute if more than 1 tabs found.
+#     for i in range(browser_len - 1, 0, -1):
+#         browser.switch_to.window(browser.window_handles[i]) #will close the last tab first.
+#         browser.close()
+#     browser.switch_to.window(browser.window_handles[0]) # Switching the driver focus to First tab.
 
 #Creating Folder links to store the files
 if not os.path.exists('Links'):
@@ -186,24 +188,25 @@ else:
         file_list.append(sys.argv[i])
 
 #Automatically Add Files from Certain Directories
-DIRS_TO_CHECK = list(set(list(map(os.path.realpath,DIRS_TO_CHECK))))
-for dirParse in DIRS_TO_CHECK:
-    for entry in os.scandir(dirParse):
-        full_p = os.path.join(os.path.realpath(dirParse), entry.name)
-        if entry.is_file() and entry.name not in COMMON_NAMES and os.path.splitext(entry.name)[1].lower() in (".txt", ".dlc") and (exec_start_time - os.path.getctime(full_p))/3600 < 24:
-            file_list_temp.append(full_p) 
-if len(file_list_temp)>0:
-    dirs_to_check_s = '\n\t\t'.join(DIRS_TO_CHECK)
-    print("\nGetting \".dlc\" and \".txt\" files from: \n\t\t"+Fore.YELLOW+dirs_to_check_s+Fore.RESET+"\n")
-    print("Following files(Created within last 24 hours) can be added to the File list: \t")
-    for ele in file_list_temp:
-         print(Fore.CYAN+f"\t\t{os.path.basename(ele)}")           
-    get_fdlc = input("\nDo you want to proceed with the addition?Enter your choice(Y/N): ")
-    if get_fdlc.upper()=="Y":
-        file_list.extend(file_list_temp) 
-        print(Fore.GREEN+"Done! Added to the List!")  
-    elif get_fdlc.upper()!="Y":
-        print(Fore.GREEN+"Okay! Skipped those files!")     
+if DIR_CHECK:
+     DIRS_TO_CHECK = list(set(list(map(os.path.realpath,DIRS_TO_CHECK))))
+     for dirParse in DIRS_TO_CHECK:
+         for entry in os.scandir(dirParse):
+             full_p = os.path.join(os.path.realpath(dirParse), entry.name)
+             if entry.is_file() and entry.name not in COMMON_NAMES and os.path.splitext(entry.name)[1].lower() in (".txt", ".dlc") and (exec_start_time - os.path.getctime(full_p))/3600 < 24:
+                 file_list_temp.append(full_p) 
+     if len(file_list_temp)>0:
+         dirs_to_check_s = '\n\t\t'.join(DIRS_TO_CHECK)
+         print("\nGetting \".dlc\" and \".txt\" files from: \n\t\t"+Fore.YELLOW+dirs_to_check_s+Fore.RESET+"\n")
+         print("Following files(Created within last 24 hours) can be added to the File list: \t")
+         for ele in file_list_temp:
+              print(Fore.CYAN+f"\t\t{os.path.basename(ele)}")           
+         get_fdlc = input("\nDo you want to proceed with the addition?Enter your choice(Y/N): ")
+         if get_fdlc.upper()=="Y":
+             file_list.extend(file_list_temp) 
+             print(Fore.GREEN+"Done! Added to the List!")  
+         elif get_fdlc.upper()!="Y":
+             print(Fore.GREEN+"Okay! Skipped those files!")     
 
 #Remove Duplicates and Print Files 
 parse_filecrypt()
@@ -216,6 +219,7 @@ for ind,fl in enumerate(file_list):
 for fl in file_list:
       flcount+=1
       if not os.path.isfile(fl):
+          #If the File is not found!
           if(flcount==len(file_list)):
               print(Fore.RED+f'\nERROR: File path "{fl}" does not exist.')
               display_summary()
@@ -226,6 +230,7 @@ for fl in file_list:
               print("\n######################################################################################################")
               continue 
       elif os.path.splitext(os.path.basename(fl))[1] not in ('.txt','.dlc'):
+          #If Unsupported File is entered!
           if(flcount==len(file_list)):
               print(Fore.RED+f'\nERROR: Inavlid File: "{os.path.basename(fl)}"\n"{os.path.splitext(os.path.basename(fl))[1]}" format is not supported!\n'+Fore.RESET+'You can only add ".dlc" or ".txt" files or any web Links.')
               display_summary()
@@ -320,10 +325,10 @@ for fl in file_list:
                          file3.write(element+"\n")
                          dlcount+=1 
                          pixel_link = True 
-                     elif(line.find('sharer')!=-1): 
+                     elif(line.find('sharer')!=-1):                         
+                         browser.get(line)
                          link_count += 1 
                          link_count_tot += 1
-                         browser.get(line)
                          print(f'Link {link_count_tot}: "{line.strip()}" found on Line {lines_parsed}.\n\tLink successfully opened.\n\t\tProceeding to download file.... ') 
                          element = browser.find_element_by_xpath("//*[@id='btndl']")
                         #  browser.find_element_by_xpath("//*[@id='overlay']").click()

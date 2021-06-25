@@ -32,5 +32,5 @@ def is_version(text):
         p = m.search(text)
         int(p.group(1))
         return True
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
