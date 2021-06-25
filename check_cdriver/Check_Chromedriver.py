@@ -17,16 +17,20 @@ except Exception:
 def is_file_exists(driver_path):
     try:
         if not os.path.isfile(driver_path):
-            print(f"{driver_mother_path} does not exist!")
+            print(f"{driver_path} does not exist!")
+            driver_exists = False
+            return driver_exists
+        driver_exists = True
+        return driver_exists     
     except Exception as e:
             print(e)
 
-def compare_driver():
+def compare_driver(driver_exists):
     try:
         driver_ver = deal_txt.read_version(driver_mother_path)
         driver_ver_code = deal_reg.reg_version_code(driver_ver)
         print("chromedriver_ver : {}".format(driver_ver))
-        if driver_ver_code == browser_ver_code:
+        if driver_ver_code == browser_ver_code and driver_exists:
             return True
     except FileNotFoundError:
         pass
@@ -56,9 +60,9 @@ def make_dir():
             raise
 
 def main():
-    driver_path = os.path.join(driver_mother_path, "chromedriver.exe")
-    is_file_exists(driver_path)
-    if compare_driver():
+    driver_path = os.path.join(os.path.realpath(driver_mother_path), "chromedriver.exe")
+    driver_exists = is_file_exists(driver_path)
+    if compare_driver(driver_exists):
         return
     make_dir()
     temp = deal_parse.parse_download_URL(browser_ver_code)
