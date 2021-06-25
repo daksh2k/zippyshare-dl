@@ -1,6 +1,4 @@
 import re
-
-
 def reg_from_atags(atag):
     try:
         m = re.compile("ChromeDriver (.*)")
@@ -9,14 +7,10 @@ def reg_from_atags(atag):
         return version
     except AttributeError:
         pass
-
-
 def regrex_version(href):
     p = re.compile(".*path=(.*)/")
     m = p.search(href)
     return m.group(1)
-
-
 def reg_version_code(ver):
     try:
         m = re.compile("(\d*)\..*")
@@ -24,8 +18,6 @@ def reg_version_code(ver):
         return p.group(1)
     except AttributeError:
         pass
-
-
 def is_version(text):
     try:
         m = re.compile("(\d*)\..*")

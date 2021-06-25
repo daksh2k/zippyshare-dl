@@ -13,10 +13,11 @@ from colorama import Fore,init
 init(autoreset=True)
 
 #CONFIG VARS
-RETRY_COUNT = 3            #Retry If unable to Open Link Min value=1 
-START_DOWNLOADING = False  # Start Downloading from Links Directly or just save in a text file.
-ADD_EXTENSIONS = True      # Add Adblocker and IDM Extension to the Browser Instance
-DIR_CHECK = True           #If you Want to Auto Add files 
+ADD_EXTENSIONS = 1      # Add Adblocker and IDM Extension to the Browser Instance
+DEBUG_ADDRESS = 0       # Connect to already Running Browser on a debug port
+START_DOWNLOADING = 0   # Start Downloading from Links Directly or just save in a text file.
+DIR_CHECK = 1           #If you Want to Auto Add files 
+RETRY_COUNT = 3         #Retry If unable to Open Link Min value=1 
 DIRS_TO_CHECK = ['.','./Links',os.path.expanduser("~")+"\\Downloads"] # Following Dirs to automatically check for dlc and text files.
 COMMON_NAMES = ["requirements.txt","req.txt","requirement.txt"]       #Common Names to Ignore from Directory  
 FILECRYPT_DOMAIN = "https://www.filecrypt.cc/"
@@ -154,7 +155,8 @@ options.add_argument('user-data-dir='+cwd+'\\Selenium\\Chrome_Test_Profile')
 if ADD_EXTENSIONS:
     options.add_extension('./Selenium/Extensions/ublock.crx')
     options.add_extension('./Selenium/Extensions/idm.crx')
-# options.add_experimental_option("debuggerAddress", "localhost:4000")
+if DEBUG_ADDRESS:
+    options.add_experimental_option("debuggerAddress", "localhost:4000")
 caps = DesiredCapabilities.CHROME
 caps['acceptInsecureCerts']= True
 print("\nOpening browser\nThis process will take a few seconds...\n")

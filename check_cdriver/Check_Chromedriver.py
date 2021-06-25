@@ -1,8 +1,6 @@
 import os
-import shutil
 import re
 import zipfile
-from urllib import request
 import platform
 import datetime
 from bs4 import BeautifulSoup
@@ -19,7 +17,7 @@ except Exception:
 def is_file_exists(driver_path):
     try:
         if not os.path.isfile(driver_path):
-            shutil.rmtree(driver_mother_path)
+            print(f"{driver_mother_path} does not exist!")
     except Exception as e:
             print(e)
 
