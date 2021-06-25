@@ -326,12 +326,15 @@ for fl in file_list:
                          dlcount+=1 
                          pixel_link = True 
                      elif(line.find('sharer')!=-1):                         
-                         browser.get(line)
+                         browser.get(line) 
                          link_count += 1 
                          link_count_tot += 1
-                         print(f'Link {link_count_tot}: "{line.strip()}" found on Line {lines_parsed}.\n\tLink successfully opened.\n\t\tProceeding to download file.... ') 
                          element = browser.find_element_by_xpath("//*[@id='btndl']")
-                        #  browser.find_element_by_xpath("//*[@id='overlay']").click()
+                         print(f'Link {link_count_tot}: "{line.strip()}" found on Line {lines_parsed}.\n\tLink successfully opened.\n\t\tProceeding to download file.... ')
+                         try:
+                            browser.find_element_by_xpath("//*[@id='overlay']").click()
+                         except:
+                            pass   
                          element.click()
                          sleep(0.1)
                          tab_count = open_newtab(tab_count,silent=True)
@@ -364,7 +367,7 @@ for fl in file_list:
                        sleep(0.5)
                        browser.refresh()
                        print(Fore.YELLOW+f"Refreshing page...\tRetry: {i+1}",end="\r")
-                       if(i==4):
+                       if(i==RETRY_COUNT-1):
                            print(Fore.RED+f"\n\nMoving to next Link...\tRetried count: {i+1}\n")    
                    sleep(0.5)
                    tab_count = open_newtab(tab_count,silent=True,script="window.open('https://www.google.com','_blank');")
