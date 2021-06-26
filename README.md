@@ -7,7 +7,7 @@ Download [IDM](https://www.internetdownloadmanager.com/download.html) from here 
 
 3. Other option is set the `START_DOWNLOADING` variable to True in the [main.py](./main.py) file   
  which will start downloading instantly. (Useful for less Links) 
-4. See [here](./main.py#L14-L24) for more configurable options. 
+4. See [here](./main.py#L14-L25) for more configurable options. 
 
 ## Requirements/Installation
 - Platform - Windows only.
