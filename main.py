@@ -20,7 +20,7 @@ DIR_CHECK = 1           #If you Want to Auto Add files
 SKIP_DUP = 0            #Skip Duplicate Check For Files 
 RETRY_COUNT = 3         #Retry If unable to Open Link Min value=1 
 DIRS_TO_CHECK = ['.','./Links',os.path.expanduser("~")+"\\Downloads"] # Following Dirs to automatically check for dlc and text files.
-COMMON_NAMES = ["requirements.txt","req.txt","requirement.txt",".*dl_links\.txt"]       #Common Names to Ignore from Directory, Supports Regex  
+COMMON_NAMES = ["requirements.txt","req.txt","requirement.txt",".*dl_links\.txt","temp_.*"]       #Common Names to Ignore from Directory, Supports Regex  
 FILECRYPT_DOMAIN = "https://www.filecrypt.cc/"
 
 # Summary vars initialization
@@ -192,6 +192,10 @@ else:
     for i in range(1,len(sys.argv)):
         file_list.append(sys.argv[i])
 
+#Remove Duplicates 
+tab_count,unsuc = parse_filecrypt(tab_count)
+file_list = list(set(map(os.path.realpath, set(file_list)-set(unsuc))))
+
 #Automatically Add Files from Certain Directories
 if DIR_CHECK:
      DIRS_TO_CHECK = list(set(map(os.path.realpath,DIRS_TO_CHECK)))
@@ -199,7 +203,7 @@ if DIR_CHECK:
      for dirParse in DIRS_TO_CHECK:
          for entry in os.scandir(dirParse):
              full_p = os.path.join(dirParse, entry.name)
-             if entry.is_file() and re.match(val,entry.name) is None and os.path.splitext(entry.name)[1].lower() in (".txt", ".dlc") and (exec_start_time - os.path.getctime(full_p))/3600 < 24:
+             if entry.is_file() and re.match(val,entry.name) is None and full_p not in file_list and os.path.splitext(entry.name)[1].lower() in (".txt", ".dlc") and (exec_start_time - os.path.getctime(full_p))/3600 < 24:
                     file_list_temp.append(full_p)   
      if len(file_list_temp)>0:
          print("\nGetting \".dlc\" and \".txt\" files from: \n\t\t"+Fore.YELLOW+'\n\t\t'.join(DIRS_TO_CHECK)+Fore.RESET+"\n")
@@ -213,9 +217,6 @@ if DIR_CHECK:
          elif get_fdlc.upper()!="Y":
              print(Fore.GREEN+"Okay! Skipped those files!")     
 
-#Remove Duplicates and Print Files 
-tab_count,unsuc = parse_filecrypt(tab_count)
-file_list = list(set(map(os.path.realpath, set(file_list)-set(unsuc))))
 print(f"\n{'Files' if len(file_list)>1 else 'File'} to be opened:\t\t")
 for ind,fl in enumerate(file_list):
     print(Fore.GREEN+f"\t\t{ind+1}. {os.path.basename(fl)}")

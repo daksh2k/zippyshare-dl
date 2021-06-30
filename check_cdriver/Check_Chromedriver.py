@@ -27,7 +27,7 @@ def compare_driver(driver_exists):
     try:
         driver_ver = deal_txt.read_version(driver_mother_path)
         driver_ver_code = deal_reg.reg_version_code(driver_ver)
-        print(f"chromedriver_ver : {driver_ver}")
+        print(f"chromedriver_ver  : {driver_ver}")
         if driver_ver_code == browser_ver_code and driver_exists:
             return True
     except FileNotFoundError:
