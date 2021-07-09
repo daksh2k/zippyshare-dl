@@ -13,11 +13,12 @@ from colorama import Fore,init
 init(autoreset=True)
 
 #CONFIG VARS
-ADD_EXTENSIONS = 1      # Add Adblocker and IDM Extension to the Browser Instance
-DEBUG_ADDRESS = 0       # Connect to already Running Browser on a debug port
+ADD_EXTENSIONS = 0      # Add Adblocker and IDM Extension to the Browser Instance
+DEBUG_ADDRESS = 1       # Connect to already Running Browser on a debug port
 START_DOWNLOADING = 0   # Start Downloading from Links Directly or just save in a text file.
 DIR_CHECK = 1           #If you Want to Auto Add files 
 SKIP_DUP = 0            #Skip Duplicate Check For Files 
+SKIP_DEAD = 5           #Skip file after certain number of Links are found Dead.Put 0 for not skipping.
 RETRY_COUNT = 3         #Retry If unable to Open Link Min value=1 
 DIRS_TO_CHECK = ['.','./Links',os.path.expanduser("~")+"\\Downloads"] # Following Dirs to automatically check for dlc and text files.
 COMMON_NAMES = ["requirements.txt","req.txt","requirement.txt",".*dl_links\.txt","temp_.*"]       #Common Names to Ignore from Directory, Supports Regex  
@@ -107,7 +108,7 @@ def open_newtab(tab_count,silent=False,script="window.open('');"):
 def check_dup(dl_links,file_skipped):
    if os.path.isfile(dl_Links) and file_skipped:
        if os.path.getsize(dl_Links)==0:
-           print(Fore.YELLOW+"File exists but with size 0\n Deleteing File and Downloading Again")
+           print(Fore.YELLOW+"File exists but with size 0\nDeleteing File and Downloading Again")
            remove(dl_Links)
        else:
           skip = input(f"Dl_Links File {dl_Links} already exists.\nDo you want to skip downloading?(Y/N):  ")
@@ -125,7 +126,7 @@ def check_dup(dl_links,file_skipped):
                if fl.lower().endswith('.dlc'):
                   remove(temp_file)
                print(Fore.GREEN+f'\nDownload Links saved to: "{os.path.basename(dl_Links)}"\nLocated at: "{os.path.realpath(dl_Links)}"')
-               print(f"Moving to next.....")
+               print("Moving to next.....")
                print("\n######################################################################################################")
                return 0
           else:
@@ -185,12 +186,9 @@ if not os.path.exists('Links'):
 
 #Parse Input fron Arguments or By taking Input
 if len(sys.argv)<2:
-    file_inputs=input("\nEnter the name of the file or path(if multiple separete by commas): ")
-    for file in file_inputs.strip().split(','):
-        file_list.append(file.strip())
+      file_list = [fl.strip() for fl in input("\nEnter the name of the file or path(if multiple separete by commas): ").strip().split(',') if fl.strip()!=""]  
 else: 
-    for i in range(1,len(sys.argv)):
-        file_list.append(sys.argv[i])
+    file_list = [sys.argv[i] for i in range(1,len(sys.argv))]
 
 #Remove Duplicates 
 tab_count,unsuc = parse_filecrypt(tab_count)
@@ -216,7 +214,9 @@ if DIR_CHECK:
              print(Fore.GREEN+"Done! Added to the List!")  
          elif get_fdlc.upper()!="Y":
              print(Fore.GREEN+"Okay! Skipped those files!")     
-
+if not len(file_list):
+    print(Fore.RED+"ERROR: No Files Added!\nExiting.....")
+    sys.exit()
 print(f"\n{'Files' if len(file_list)>1 else 'File'} to be opened:\t\t")
 for ind,fl in enumerate(file_list):
     print(Fore.GREEN+f"\t\t{ind+1}. {os.path.basename(fl)}")
@@ -224,6 +224,8 @@ for ind,fl in enumerate(file_list):
 #Run Through each File
 for fl in file_list:
       flcount+=1
+      link_count_z=0
+      dlcount_z=0
       if not os.path.isfile(fl):
           #If the File is not found!
           if(flcount==len(file_list)):
@@ -247,12 +249,13 @@ for fl in file_list:
               print("\n######################################################################################################")
               continue 
       else:
+          lines_parsed=0
           flcount_parsed+=1
           file_skipped = True
           zipp_link = False
           pixel_link = False
           url_list=[]
-          print(f'\nOpening File {flcount} of {len(file_list)}: "{os.path.basename(fl)}"\nLocated at: "{os.path.realpath(fl)}"\n\n')    
+          print(f'\nFile {flcount} of {len(file_list)}: "{os.path.basename(fl)}"\nLocated at: "{os.path.realpath(fl)}"\n\n')    
           if os.path.splitext(os.path.basename(fl))[1] == '.txt':
               file1 = open(fl, 'r')
           elif os.path.splitext(os.path.basename(fl))[1] == '.dlc':
@@ -265,7 +268,6 @@ for fl in file_list:
               file1 = open(temp_file, 'r')  
           line= file1.readline()
           x=[line]
-          lines_parsed=0
           while True:
               lines_parsed+=1
               line2= file1.readline()
@@ -306,18 +308,40 @@ for fl in file_list:
                                 remove(dl_Links)
                              except Exception as e:
                                 pass 
+                         if SKIP_DEAD:
+                             if link_count_z-dlcount_z>=SKIP_DEAD:
+                                try:
+                                    total_lines_parsed+=lines_parsed
+                                    file1.close()
+                                    file2.close()
+                                    remove(dl_Links)
+                                    if fl.lower().endswith('.dlc'):
+                                         remove(temp_file)
+                                except Exception as e:
+                                    print(e)
+                                print(Fore.RED+"\nAll Links seem to be down!")
+                                print(f"Skipping File: \"{os.path.basename(fl)}\"") 
+                                if flcount!=len(file_list): 
+                                    print("Moving to next.....")  
+                                    print("\n######################################################################################################")
+                                    break
+                                else:
+                                    display_summary()
+                                    sys.exit()
                          file2 = open(dl_Links, "a")
                          browser.get(line)
                          file_skipped = False
                          link_count += 1 
                          link_count_tot +=1
-                         print(f'Link {link_count_tot}: "{line.strip()}" on Line {lines_parsed}.\n\tLink successfully opened.') 
+                         link_count_z +=1
+                         print(f'Link {link_count_tot}: "{line.strip()}" on Line {lines_parsed}.\n\tLink successfully opened.')   
                          element = browser.find_element_by_xpath("//*[@id='dlbutton']")
                          if START_DOWNLOADING:
                              element.click()
                          element = element.get_attribute("href")
                          file2.write(element+"\n")
                          dlcount+=1 
+                         dlcount_z+=1
                          zipp_link = True 
                      elif(line.find('pixeldrain')!=-1):
                          dl_Links=f"Links/{os.path.splitext(os.path.basename(fl))[0]}_dl_links.txt"
@@ -372,7 +396,7 @@ for fl in file_list:
                        raise NoSuchElementException 
                   except NoSuchElementException:
                      print(Fore.RED+"Download Link not found!\n\tMoving to next.....\n")
-                     tab_count = open_newtab(tab_count,silent=True,script="window.open('https://www.google.com','_blank');")
+                     tab_count = open_newtab(tab_count,silent=True)
                      continue 
                   print(Fore.GREEN+f"Download started!Moving to next.....\n")
                except WebDriverException:
