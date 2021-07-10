@@ -7,9 +7,8 @@ Download [IDM](https://www.internetdownloadmanager.com/download.html) from here 
 2. ### The Links will be saved in a text file which can then be imported to idm from: 
    Tasks>Import>from text file
 
-3. Other option is set the `START_DOWNLOADING` variable to True in the [main.py](./main.py) file   
- which will start downloading instantly. (Useful for less Links) 
-4. See [here](./config.py) for more configurable options. 
+3. Other option is set the `START_DOWNLOADING` variable to 1 in the config file which will start downloading instantly. **(Useful for less Links)** 
+4. See [the config file here](./config.py) for more configurable options. 
 
 ## Requirements/Installation
 - Platform - Windows only.
