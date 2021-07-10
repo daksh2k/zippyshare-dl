@@ -9,34 +9,24 @@ from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import NoSuchElementException,WebDriverException
+from config import *
 from colorama import Fore,init
 init(autoreset=True)
 
-#CONFIG VARS
-ADD_EXTENSIONS = 0      # Add Adblocker and IDM Extension to the Browser Instance
-DEBUG_ADDRESS = 1       # Connect to already Running Browser on a debug port
-START_DOWNLOADING = 0   # Start Downloading from Links Directly or just save in a text file.
-DIR_CHECK = 1           #If you Want to Auto Add files 
-SKIP_DUP = 0            #Skip Duplicate Check For Files 
-SKIP_DEAD = 5           #Skip file after certain number of Links are found Dead.Put 0 for not skipping.
-RETRY_COUNT = 3         #Retry If unable to Open Link Min value=1 
-DIRS_TO_CHECK = ['.','./Links',os.path.expanduser("~")+"\\Downloads"] # Following Dirs to automatically check for dlc and text files.
-COMMON_NAMES = ["requirements.txt","req.txt","requirement.txt",".*dl_links\.txt","temp_.*"]       #Common Names to Ignore from Directory, Supports Regex  
-FILECRYPT_DOMAIN = "https://www.filecrypt.cc/"
-
-# Summary vars initialization
-link_count = 0
-link_count_tot = 0
-tab_count = 0
-lines_parsed = 0
-dlcount = 0
-flcount = 0
-flcount_parsed = 0
+# SUMMARY VARS 
+link_count         = 0
+link_count_tot     = 0
+tab_count          = 0
+lines_parsed       = 0
+dlcount            = 0
+flcount            = 0
+flcount_parsed     = 0
 total_lines_parsed = 0
-file_list=[]
-file_list_temp=[]
-start_time  = datetime.now().strftime("%d/%m/%Y %I:%M:%S %p")
-exec_start_time=time()
+FILECRYPT_DOMAIN   = "https://www.filecrypt.cc/"
+file_list          = []
+file_list_temp     = []
+start_time         = datetime.now().strftime("%d/%m/%Y %I:%M:%S %p")
+exec_start_time    = time()
 
 #Get dlc from Filecrypt Links
 def parse_filecrypt(tab_count):
@@ -188,7 +178,7 @@ if not os.path.exists('Links'):
 if len(sys.argv)<2:
       file_list = [fl.strip() for fl in input("\nEnter the name of the file or path(if multiple separete by commas): ").strip().split(',') if fl.strip()!=""]  
 else: 
-    file_list = [sys.argv[i] for i in range(1,len(sys.argv))]
+      file_list = [sys.argv[i] for i in range(1,len(sys.argv))]
 
 #Remove Duplicates 
 tab_count,unsuc = parse_filecrypt(tab_count)
@@ -255,7 +245,7 @@ for fl in file_list:
           zipp_link = False
           pixel_link = False
           url_list=[]
-          print(f'\nFile {flcount} of {len(file_list)}: "{os.path.basename(fl)}"\nLocated at: "{os.path.realpath(fl)}"\n\n')    
+          print(f'\nFile {flcount} of {len(file_list)}: "{os.path.basename(fl)}"\nLocated at: "{fl}"\n\n')    
           if os.path.splitext(os.path.basename(fl))[1] == '.txt':
               file1 = open(fl, 'r')
           elif os.path.splitext(os.path.basename(fl))[1] == '.dlc':
