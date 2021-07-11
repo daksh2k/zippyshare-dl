@@ -40,10 +40,9 @@ def check_browser_ver():
             ver_path = "C:/Program Files/Google/Chrome/Application"
         else:
             for dirs in check_files_dirs:
-                dir_p = dirs
                 if 'Google' in os.listdir(dirs):
-                    if 'Chrome' in os.listdir(dir_p+"/Google"):
-                        ver_path = dir_p+"/Google/Chrome/Application"
+                    if 'Chrome' in os.listdir(dirs+"/Google"):
+                        ver_path = dirs+"/Google/Chrome/Application"
         for i in os.listdir(ver_path):
             if deal_reg.is_version(i):
                 return i

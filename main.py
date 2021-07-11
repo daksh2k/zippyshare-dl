@@ -8,8 +8,8 @@ from dcryptit import read_dlc
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.common.exceptions import NoSuchElementException,WebDriverException
-from config import *
+from selenium.common.exceptions import NoSuchElementException,WebDriverException,ElementNotInteractableException
+import config as c
 from colorama import Fore,init
 init(autoreset=True)
 
@@ -117,15 +117,15 @@ def display_summary():
    print(f"Time taken: {time_taken:.2f} seconds\n\nExiting.....\n\n")
    print(f"Process ended on Date and Time: {datetime.now().strftime('%d/%m/%Y %I:%M:%S %p')}\n\n")
 
+cwd = os.getcwd()
 system("cls")
 print(f"Process started on Date and Time: {start_time}")
-cwd = os.getcwd()
 print(f"Current working directory: {cwd}\n")
 
 # Check if Chrome Driver is Updated or not 
-import check_cdriver.Check_Chromedriver as ccheck 
-ccheck.driver_mother_path = "./Selenium"
-ccheck.main()
+import check_cdriver.Check_Chromedriver as cd_check 
+cd_check.driver_mother_path = "./Selenium"
+cd_check.main()
 
 options = webdriver.ChromeOptions()
 options.add_argument('--allow-running-insecure-content')
@@ -133,10 +133,10 @@ options.add_argument('--allow-insecure-localhost')
 options.add_argument('--ignore-certificate-errors')
 options.add_argument('--ignore-ssl-errors=yes')
 options.add_argument('user-data-dir='+cwd+'\\Selenium\\Chrome_Test_Profile') 
-if ADD_EXTENSIONS:
+if c.ADD_EXTENSIONS:
     options.add_extension('./Selenium/Extensions/ublock.crx')
     options.add_extension('./Selenium/Extensions/idm.crx')
-if DEBUG_ADDRESS:
+if c.DEBUG_ADDRESS:
     options.add_experimental_option("debuggerAddress", "localhost:4000")
 caps = DesiredCapabilities.CHROME
 caps['acceptInsecureCerts']= True
@@ -169,16 +169,16 @@ tab_count,unsuc = parse_filecrypt(tab_count)
 file_list = list(set(map(os.path.realpath, set(file_list)-set(unsuc))))
 
 #Automatically Add Files from Certain Directories
-if DIR_CHECK:
-     DIRS_TO_CHECK = list(set(map(os.path.realpath,DIRS_TO_CHECK)))
-     val = re.compile('|'.join(COMMON_NAMES))
-     for dirParse in DIRS_TO_CHECK:
+if c.DIR_CHECK:
+     c.DIRS_TO_CHECK = list(set(map(os.path.realpath,c.DIRS_TO_CHECK)))
+     val = re.compile('|'.join(c.COMMON_NAMES))
+     for dirParse in c.DIRS_TO_CHECK:
          for entry in os.scandir(dirParse):
              full_p = os.path.join(dirParse, entry.name)
              if entry.is_file() and re.match(val,entry.name) is None and full_p not in file_list and os.path.splitext(entry.name)[1].lower() in (".txt", ".dlc") and (exec_start_time - os.path.getctime(full_p))/3600 < 24:
                     file_list_temp.append(full_p)   
      if len(file_list_temp)>0:
-         print("\nGetting \".dlc\" and \".txt\" files from: \n\t\t"+Fore.YELLOW+'\n\t\t'.join(DIRS_TO_CHECK)+Fore.RESET+"\n")
+         print("\nGetting \".dlc\" and \".txt\" files from: \n\t\t"+Fore.YELLOW+'\n\t\t'.join(c.DIRS_TO_CHECK)+Fore.RESET+"\n")
          print("Following files(Created within last 24 hours) can be added to the File list: \t")
          for ele in file_list_temp:
               print(Fore.CYAN+f"\t\t{os.path.basename(ele)}")           
@@ -188,7 +188,7 @@ if DIR_CHECK:
              print(Fore.GREEN+"✅ Added to the List!")  
          elif get_fdlc.upper()!="Y":
              print(Fore.GREEN+"❌ Skipped those files!")     
-if not len(file_list):
+if not file_list:
     print(Fore.RED+"ERROR: No Files Added!\nExiting.....")
     sys.exit()
 print(f"\n{'Files' if len(file_list)>1 else 'File'} to be opened:\t\t")
@@ -271,17 +271,17 @@ for fl in file_list:
                         print(f'Link {link_count_tot}: "{line.strip()}" on Line {lines_parsed}.')
                      if(line.find('zippyshare')!=-1): 
                          dl_Links=f"Links/{os.path.splitext(os.path.basename(fl))[0]}_dl_links.txt"
-                         if not SKIP_DUP:
+                         if not c.SKIP_DUP:
                              dup = check_dup(dl_Links,file_skipped)
                              if dup==0:
                                 break
                          else:
                              try:
                                 remove(dl_Links)
-                             except Exception as e:
+                             except FileNotFoundError:
                                 pass 
-                         if SKIP_DEAD:
-                             if link_count_z-dlcount_z>=SKIP_DEAD:
+                         if c.SKIP_DEAD:
+                             if link_count_z-dlcount_z>=c.SKIP_DEAD:
                                 try:
                                     total_lines_parsed+=lines_parsed
                                     file1.close()
@@ -307,7 +307,7 @@ for fl in file_list:
                          link_count_z +=1
                          print("✅ Opened")   
                          element = browser.find_element_by_xpath("//*[@id='dlbutton']")
-                         if START_DOWNLOADING:
+                         if c.START_DOWNLOADING:
                              element.click()
                          element = element.get_attribute("href")
                          file2.write(element+"\n")
@@ -316,14 +316,14 @@ for fl in file_list:
                          zipp_link = True 
                      elif(line.find('pixeldrain')!=-1):
                          dl_Links=f"Links/{os.path.splitext(os.path.basename(fl))[0]}_dl_links.txt"
-                         if not SKIP_DUP:
+                         if not c.SKIP_DUP:
                              dup = check_dup(dl_Links,file_skipped)
                              if dup==0:
                                 break
                          else:
                              try:
                                  remove(dl_Links)
-                             except Exception as e:
+                             except FileNotFoundError:
                                  pass      
                          file3 = open(dl_Links, "a")
                          # browser.get(line)
@@ -342,7 +342,7 @@ for fl in file_list:
                          element = browser.find_element_by_xpath("//*[@id='btndl']")
                          try:
                             browser.find_element_by_xpath("//*[@id='overlay']").click()
-                         except Exception as e:
+                         except (ElementNotInteractableException,NoSuchElementException):
                             pass
                          element.click()
                          sleep(0.1)
@@ -371,7 +371,7 @@ for fl in file_list:
                   print("✅ Downloaded\n")
                except WebDriverException:
                    print(Fore.RED+f"❌ Opened\n❌ Downloaded\n")
-                   for i in range(RETRY_COUNT):
+                   for i in range(c.RETRY_COUNT):
                        sleep(0.5)
                        browser.refresh()
                        print(Fore.YELLOW+f"Refreshing page.....\tRetry: {i+1}",end="\r")   
