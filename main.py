@@ -275,11 +275,11 @@ for fl in file_list:
                              dup = check_dup(dl_Links,file_skipped)
                              if dup==0:
                                 break
-                         else:
+                         elif file_skipped:
                              try:
                                 remove(dl_Links)
-                             except FileNotFoundError:
-                                pass 
+                             except (FileNotFoundError,PermissionError):
+                                pass   
                          if c.SKIP_DEAD:
                              if link_count_z-dlcount_z>=c.SKIP_DEAD:
                                 try:
@@ -320,11 +320,11 @@ for fl in file_list:
                              dup = check_dup(dl_Links,file_skipped)
                              if dup==0:
                                 break
-                         else:
+                         elif file_skipped:
                              try:
-                                 remove(dl_Links)
-                             except FileNotFoundError:
-                                 pass      
+                                remove(dl_Links)
+                             except (FileNotFoundError,PermissionError):
+                                pass
                          file3 = open(dl_Links, "a")
                          # browser.get(line)
                          file_skipped = False
