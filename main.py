@@ -206,7 +206,6 @@ for fl in file_list:
           if(flcount==len(file_list)):
               display_summary()
               sys.exit()
-          print("Moving to next.....")
           print("\n######################################################################################################")
           continue 
       elif os.path.splitext(os.path.basename(fl))[1] not in ('.txt','.dlc'):
@@ -215,7 +214,6 @@ for fl in file_list:
           if(flcount==len(file_list)):
               display_summary()
               sys.exit()
-          print("Moving to next.....")
           print("\n######################################################################################################")
           continue 
       else:
@@ -256,12 +254,11 @@ for fl in file_list:
                      except NameError:
                        pass  
                   print(Fore.GREEN+f'\nFile: "{os.path.basename(fl)}" successfully parsed!')
-                  if(flcount!=len(file_list)):
-                     print("Moving to next.....")
-                     print("\n######################################################################################################")
-                  else:
+                  if(flcount==len(file_list)):
                      display_summary()
                      sys.exit()
+                  print("Moving to next.....")
+                  print("\n######################################################################################################")
                   break
               elif not line.strip() or line.strip()[0:4] !="http":
                   print(Fore.YELLOW+f'No Link found on Line {lines_parsed}:"'+line.strip()+'" it is either Empty or Invalid\n')
