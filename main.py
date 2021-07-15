@@ -26,7 +26,6 @@ FILECRYPT_DOMAIN   = "https://www.filecrypt.cc/"
 file_list          = []
 file_list_temp     = []
 start_time         = datetime.now().strftime("%d/%m/%Y %I:%M:%S %p")
-exec_start_time    = time()
 
 #Get dlc from Filecrypt Links
 def parse_filecrypt(tab_count):
@@ -116,6 +115,8 @@ def display_summary():
    print(f"\nLinks successfully opened: {link_count}/{link_count_tot}\nTotal downloads started: {dlcount}\nTotal files parsed for Links: {flcount_parsed}/{flcount}\nTotal Lines Parsed: {total_lines_parsed}")
    print(f"Time taken: {time_taken:.2f} seconds\n\nExiting.....\n\n")
    print(f"Process ended on Date and Time: {datetime.now().strftime('%d/%m/%Y %I:%M:%S %p')}\n\n")
+   if len(browser.window_handles)==1:
+            browser.close()
 
 cwd = os.getcwd()
 system("cls")
@@ -190,10 +191,13 @@ if c.DIR_CHECK:
              print(Fore.GREEN+"❌ Skipped those files!")     
 if not file_list:
     print(Fore.RED+"ERROR: No Files Added!\nExiting.....")
+    browser.close()
     sys.exit()
 print(f"\n{'Files' if len(file_list)>1 else 'File'} to be opened:\t\t")
 for ind,fl in enumerate(file_list):
     print(Fore.GREEN+f"\t\t{ind+1}. {os.path.basename(fl)}")
+
+exec_start_time = time()
 
 #Run Through each File
 for fl in file_list:
