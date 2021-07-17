@@ -26,10 +26,12 @@ FILECRYPT_DOMAIN   = "https://www.filecrypt.cc/"
 file_list          = []
 file_list_temp     = []
 start_time         = datetime.now().strftime("%d/%m/%Y %I:%M:%S %p")
+exec_start_time    = time()
 
 #Get dlc from Filecrypt Links
 def parse_filecrypt(tab_count):
-   unsuc=[]
+   unsuc  = set()
+   to_rem = set()
    for index,item in enumerate(file_list):
       if(item.find('filecrypt')!=-1):
            print(f"\nFound filecrypt Link: {item}")
@@ -54,12 +56,12 @@ def parse_filecrypt(tab_count):
                    file_list[index] = file_path
                except Exception as e: 
                	   print(Fore.RED+f"\n❌ Unable to find DLC \n{item} is not supported. Try opening the link manually.")
-                   unsuc.append(item)
+                   unsuc.add(item)
                    tab_count = open_newtab(tab_count)
                    continue
            except Exception as e:
                 print(Fore.RED+f"[*] {e}")
-                unsuc.append(item)
+                unsuc.add(item)
                 tab_count = open_newtab(tab_count)
                 continue
                  # Alternate pattern r"(https?:\/\/)?(\w*\.)?(\w+)\.(.+)"
@@ -69,8 +71,9 @@ def parse_filecrypt(tab_count):
            print(f"\nLink: {item} saved to file {patt}")
            lfl.write("\n"+item+"\n")
            lfl.close()
-           file_list[index] = patt 
-   return tab_count,unsuc
+           file_list[index] = patt
+           to_rem.add(patt) 
+   return tab_count,unsuc,to_rem
 
 #Open new Tab in the browser
 def open_newtab(tab_count,silent=True,script="window.open('');"):
@@ -115,6 +118,8 @@ def display_summary():
    print(f"\nLinks successfully opened: {link_count}/{link_count_tot}\nTotal downloads started: {dlcount}\nTotal files parsed for Links: {flcount_parsed}/{flcount}\nTotal Lines Parsed: {total_lines_parsed}")
    print(f"Time taken: {time_taken:.2f} seconds\n\nExiting.....\n\n")
    print(f"Process ended on Date and Time: {datetime.now().strftime('%d/%m/%Y %I:%M:%S %p')}\n\n")
+   for it in to_rem:
+           remove(it)
    if len(browser.window_handles)==1:
             browser.close()
 
@@ -166,8 +171,8 @@ else:
       file_list = [sys.argv[i] for i in range(1,len(sys.argv))]
 
 #Remove Duplicates 
-tab_count,unsuc = parse_filecrypt(tab_count)
-file_list = list(set(map(os.path.realpath, set(file_list)-set(unsuc))))
+tab_count,unsuc,to_rem = parse_filecrypt(tab_count)
+file_list = list(set(map(os.path.realpath, set(file_list)-unsuc)))
 
 #Automatically Add Files from Certain Directories
 if c.DIR_CHECK:
