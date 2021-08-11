@@ -27,6 +27,7 @@ file_list          = []
 file_list_temp     = []
 start_time         = datetime.now().strftime("%d/%m/%Y %I:%M:%S %p")
 exec_start_time    = time()
+to_sub             = 0
 
 #Get dlc from Filecrypt Links
 def parse_filecrypt(tab_count):
@@ -93,13 +94,15 @@ def check_dup(dl_links,file_skipped):
            print(Fore.YELLOW+"File exists but with size 0\nDeleteing File and Downloading Again")
            remove(dl_Links)
        else:
+          global to_sub
+          in_time = time()
           skip = input(f"Dl_Links File {dl_Links} already exists.\nDo you want to skip downloading?(Y/N):  ")
+          in_time = time() - in_time
+          to_sub += in_time 
           if(skip.upper()=="Y"):
                file_skipped = True
                print(Fore.GREEN+f'\n\nDownload Links saved to file "{os.path.basename(dl_Links)}"\nLocated at "{os.path.realpath(dl_Links)}"')
                file1.close()	
-               if fl.lower().endswith('.dlc'):
-                  remove(temp_file)
                if flcount!=len(file_list):
                     print("Moving to next.....")
                     print("\n######################################################################################################")
@@ -113,7 +116,7 @@ def check_dup(dl_links,file_skipped):
 
 #Print the relevant statistics after completion.       
 def display_summary():
-   time_taken = time() - exec_start_time
+   time_taken = time() - exec_start_time - to_sub
    print("\n############################  Summary   ##################################################")
    print(f"\nLinks successfully opened: {link_count}/{link_count_tot}\nTotal downloads started: {dlcount}\nTotal files parsed for Links: {flcount_parsed}/{flcount}\nTotal Lines Parsed: {total_lines_parsed}")
    print(f"Time taken: {time_taken:.2f} seconds\n\nExiting.....\n\n")
@@ -242,7 +245,8 @@ for fl in file_list:
               for url in list(url_list): 
                   file1.write(url+"\n")
               file1.close()
-              file1 = open(temp_file, 'r')  
+              file1 = open(temp_file, 'r')
+              to_rem.add(temp_file)  
           line= file1.readline()
           x=[line]
           while True:
@@ -253,8 +257,6 @@ for fl in file_list:
               if not line.strip() and not line2.strip():
                   file1.close()
                   total_lines_parsed+=lines_parsed
-                  if fl.lower().endswith('.dlc'):
-                     remove(temp_file)
                   if zipp_link or pixel_link:
                      print(f'\n\nDownload Links saved to file "{os.path.basename(dl_Links)}"\nLocated at "{os.path.realpath(dl_Links)}"')
                      try: 
@@ -275,8 +277,8 @@ for fl in file_list:
               else:
                try:  
                   try:
-                     link_count_tot += 1
-                     if line.count('zippyshare')==0 and line.count('pixeldreain')==0:
+                     if line.count('zippyshare')==0 and line.count('pixeldrain')==0:
+                        link_count_tot += 1
                         print(f'Link {link_count_tot}: "{line.strip()}" on Line {lines_parsed}.')
                      if(line.find('zippyshare')!=-1): 
                          dl_Links=f"Links/{os.path.splitext(os.path.basename(fl))[0]}_dl_links.txt"
@@ -296,8 +298,6 @@ for fl in file_list:
                                     file1.close()
                                     file2.close()
                                     remove(dl_Links)
-                                    if fl.lower().endswith('.dlc'):
-                                         remove(temp_file)
                                 except Exception as e:
                                     print(Fore.RED+f"[*] {e}")
                                 print(Fore.RED+"\nAll Links seem to be down!")
@@ -309,6 +309,7 @@ for fl in file_list:
                                 print("\n######################################################################################################")
                                 break
                          file2 = open(dl_Links, "a")
+                         link_count_tot += 1
                          print(f'Link {link_count_tot}: "{line.strip()}" on Line {lines_parsed}.')
                          browser.get(line)
                          file_skipped = False
@@ -338,6 +339,7 @@ for fl in file_list:
                          # browser.get(line)
                          file_skipped = False
                          link_count += 1
+                         link_count_tot += 1
                          print(f'Link {link_count_tot}: "{line.strip()}" on Line {lines_parsed}.')
                          print("✅ Opened") 
                          element = "https://pixeldrain.com/api/file/"+line.split('/')[4]+"?download"
