@@ -166,7 +166,7 @@ if not os.path.exists('Links'):
 
 #Parse Input fron Arguments or By taking Input
 if len(sys.argv)<2:
-      file_list = [fl.strip() for fl in input("\nEnter the name of the file or path(if multiple separete by commas): ").strip().split(',') if fl.strip()!=""]  
+      file_list = [fl.strip().strip('"') for fl in input("\nEnter the name of the file or path(if multiple separete by commas): ").strip().split(',') if fl.strip()!=""]  
 else: 
       file_list = [sys.argv[i] for i in range(1,len(sys.argv))]
 
