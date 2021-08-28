@@ -2,16 +2,24 @@ import os
 import sys
 import re
 import requests
+
 from time import sleep,time
-from os import remove,system
-from dcryptit import read_dlc
 from datetime import datetime
+
+# For parsing DLC files
+from dcryptit import read_dlc
+
+#Selenium Imports
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import NoSuchElementException,WebDriverException,ElementNotInteractableException
-import config as c
+
+# For colored output to Terminal
 from colorama import Fore,init
 init(autoreset=True)
+
+#Get The Config Variables
+import config as c
 
 # SUMMARY VARS 
 link_count         = 0
@@ -32,7 +40,7 @@ to_sub             = 0
 #Get dlc from Filecrypt Links
 def parse_filecrypt(tab_count):
    unsuc  = set()
-   to_rem = set()
+   to_remove = set()
    for index,item in enumerate(file_list):
       if(item.find('filecrypt')!=-1):
            print(f"\nFound filecrypt Link: {item}")
@@ -47,7 +55,7 @@ def parse_filecrypt(tab_count):
                    if os.path.isfile(file_path):
                       if os.path.getsize(file_path)==0:
                           print(Fore.YELLOW+"File exists but with size 0\n Deleteing File and Downloading Again")
-                          remove(file_path)
+                          os.remove(file_path)
                       else:
                           file_list[index] = file_path
                           print(Fore.YELLOW+f"{file_path} already exists\n\tSkipping Download...")
@@ -73,8 +81,8 @@ def parse_filecrypt(tab_count):
            lfl.write("\n"+item+"\n")
            lfl.close()
            file_list[index] = patt
-           to_rem.add(patt) 
-   return tab_count,unsuc,to_rem
+           to_remove.add(patt) 
+   return tab_count,unsuc,to_remove
 
 #Open new Tab in the browser
 def open_newtab(tab_count,silent=True,script="window.open('');"):
@@ -92,7 +100,7 @@ def check_dup(dl_links,file_skipped):
    if os.path.isfile(dl_Links) and file_skipped:
        if os.path.getsize(dl_Links)==0:
            print(Fore.YELLOW+"File exists but with size 0\nDeleteing File and Downloading Again")
-           remove(dl_Links)
+           os.remove(dl_Links)
        else:
           global to_sub
           in_time = time()
@@ -112,7 +120,7 @@ def check_dup(dl_links,file_skipped):
           else:
                file_skipped = False
                print("\nDownloading Links again.....\n") 
-               remove(dl_Links)
+               os.remove(dl_Links)
 
 #Print the relevant statistics after completion.       
 def display_summary():
@@ -121,20 +129,21 @@ def display_summary():
    print(f"\nLinks successfully opened: {link_count}/{link_count_tot}\nTotal downloads started: {dlcount}\nTotal files parsed for Links: {flcount_parsed}/{flcount}\nTotal Lines Parsed: {total_lines_parsed}")
    print(f"Time taken: {time_taken:.2f} seconds\n\nExiting.....\n\n")
    print(f"Process ended on Date and Time: {datetime.now().strftime('%d/%m/%Y %I:%M:%S %p')}\n\n")
-   for it in to_rem:
-           remove(it)
+   for item in to_remove:
+           os.remove(item)
    if len(browser.window_handles)==1:
             browser.close()
 
 cwd = os.getcwd()
-system("cls")
+os.system("cls")
 print(f"Process started on Date and Time: {start_time}")
 print(f"Current working directory: {cwd}\n")
 
 # Check if Chrome Driver is Updated or not 
-import check_cdriver.Check_Chromedriver as cd_check 
-cd_check.driver_mother_path = "./Selenium"
-cd_check.main()
+if c.CDRIVER_CHECK:
+    import check_cdriver.Check_Chromedriver as cd_check 
+    cd_check.driver_mother_path = "./Selenium"
+    cd_check.main()
 
 options = webdriver.ChromeOptions()
 options.add_argument('--allow-running-insecure-content')
@@ -169,12 +178,22 @@ if not os.path.exists('Links'):
 
 #Parse Input fron Arguments or By taking Input
 if len(sys.argv)<2:
-      file_list = [fl.strip().strip('"') for fl in input("\nEnter the name of the file or path(if multiple separete by commas): ").strip().split(',') if fl.strip()!=""]  
+      if c.MULTILINE_INPUT:
+          print("\nEnter the names of the Files or paste Links directly.Enter Ctrl-Z to save it: ")
+          while True:
+              try:
+                input_line = input()
+              except EOFError:
+                break  
+              if input_line.strip().strip('"')!="":
+                  file_list.append(input_line.strip().strip('"'))
+      else:
+          file_list = [fl.strip().strip('"') for fl in input("\nEnter the name of the file or path(if multiple separete by commas): ").strip().split(',') if fl.strip().strip('"')!=""]  
 else: 
       file_list = [sys.argv[i] for i in range(1,len(sys.argv))]
 
 #Remove Duplicates 
-tab_count,unsuc,to_rem = parse_filecrypt(tab_count)
+tab_count,unsuc,to_remove = parse_filecrypt(tab_count)
 file_list = list(set(map(os.path.realpath, set(file_list)-unsuc)))
 
 #Automatically Add Files from Certain Directories
@@ -246,7 +265,7 @@ for fl in file_list:
                   file1.write(url+"\n")
               file1.close()
               file1 = open(temp_file, 'r')
-              to_rem.add(temp_file)  
+              to_remove.add(temp_file)  
           line= file1.readline()
           x=[line]
           while True:
@@ -288,7 +307,7 @@ for fl in file_list:
                                 break
                          elif file_skipped:
                              try:
-                                remove(dl_Links)
+                                os.remove(dl_Links)
                              except (FileNotFoundError,PermissionError):
                                 pass   
                          if c.SKIP_DEAD:
@@ -297,7 +316,7 @@ for fl in file_list:
                                     total_lines_parsed+=lines_parsed
                                     file1.close()
                                     file2.close()
-                                    remove(dl_Links)
+                                    os.remove(dl_Links)
                                 except Exception as e:
                                     print(Fore.RED+f"[*] {e}")
                                 print(Fore.RED+"\nAll Links seem to be down!")
@@ -332,7 +351,7 @@ for fl in file_list:
                                 break
                          elif file_skipped:
                              try:
-                                remove(dl_Links)
+                                os.remove(dl_Links)
                              except (FileNotFoundError,PermissionError):
                                 pass
                          file3 = open(dl_Links, "a")
@@ -387,6 +406,5 @@ for fl in file_list:
                        browser.refresh()
                        print(Fore.YELLOW+f"Refreshing page.....\tRetry: {i+1}",end="\r")   
                    print(Fore.RED+f"\n\nMoving to next.....\tRetried count: {i+1}\n")
-                   sleep(0.1)
                    tab_count = open_newtab(tab_count,script="window.open('https://www.google.com','_blank');")
                    continue 
